@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sumatif Planner - RLS Test</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.08);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin: 14px 0 6px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 15px;
+      margin: 6px 4px 6px 0;
+      cursor: pointer;
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
+    }
+
+    button:hover {
+      opacity: .9;
+    }
+
+    button.danger {
+      background: #dc2626;
+    }
+
+    button.secondary {
+      background: #6b7280;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .status {
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 15px;
+      background: #f3f4f6;
+      white-space: pre-wrap;
+    }
+
+    .success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .info {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .assignment {
+      border: 1px solid #e5e7eb;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 8px 0;
+    }
+
+    pre {
+      background: #111827;
+      color: #e5e7eb;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card">
+    <h1>Sumatif Planner</h1>
+    <p>RLS Security Test</p>
+
+    <div id="loginArea">
+
+      <label>Email</label>
+      <input
+        id="email"
+        type="email"
+        value="altearzie@gmail.com"
+      >
+
+      <label>Password</label>
+      <input
+        id="password"
+        type="password"
+        placeholder="Masukkan password"
+      >
+
+      <button onclick="login()">Login</button>
+
+    </div>
+
+    <div id="userArea" class="hidden">
+
+      <div id="userInfo"></div>
+
+      <button class="secondary" onclick="logout()">
+        Logout
+      </button>
+
+    </div>
+
+    <div id="status" class="status">
+      Belum login.
+    </div>
+  </div>
+
+
+  <!-- TEST PROFILE -->
+
+  <div id="testArea" class="hidden">
+
+    <div class="card">
+      <h2>1. Test Profile</h2>
+
+      <button onclick="testProfile()">
+        Baca Profile
+      </button>
+
+      <pre id="profileResult"></pre>
+    </div>
+
+
+    <!-- TEST ASSIGNMENT -->
+
+    <div class="card">
+      <h2>2. Test Teacher Assignment</h2>
+
+      <button onclick="testAssignment()">
+        Baca Assignment
+      </button>
+
+      <pre id="assignmentResult"></pre>
+    </div>
+
+
+    <!-- TEST SUMATIF -->
+
+    <div class="card">
+      <h2>3. Test Jadwal Sumatif</h2>
+
+      <button onclick="testSchedules()">
+        Baca Jadwal Saya
+      </button>
+
+      <pre id="scheduleResult"></pre>
+    </div>
+
+
+    <!-- INSERT TEST -->
+
+    <div class="card">
+      <h2>4. Test INSERT</h2>
+
+      <p>
+        Pengujian ini menggunakan assignment Guru Test.
+      </p>
+
+      <button onclick="testValidInsert()">
+        Test Insert Matematika
+      </button>
+
+      <button class="danger" onclick="testInvalidInsert()">
+        Test Insert IPAS
+      </button>
+
+      <pre id="insertResult"></pre>
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  // =====================================================
+  // SUPABASE CONFIG
+  // =====================================================
+
+  const SUPABASE_URL = "https://jizgwoavrxxpfzkwfbma.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_9eGSinz7ytpNZ2HblVgAxg_oy_HLONS";
+
+  const { createClient } = supabase;
+
+  const db = createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+
+  // =====================================================
+  // LOGIN
+  // =====================================================
+
+  async function login() {
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+    setStatus("Sedang login...", "info");
+
+    const { data, error } =
+      await db.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if (error) {
+
+      setStatus(
+        "LOGIN GAGAL\n\n" + error.message,
+        "error"
+      );
+
+      return;
+    }
+
+    await loadUser();
+
+    setStatus(
+      "Login berhasil.",
+      "success"
+    );
+  }
+
+
+  // =====================================================
+  // LOAD USER
+  // =====================================================
+
+  async function loadUser() {
+
+    const {
+      data: { user }
+    } = await db.auth.getUser();
+
+    if (!user) {
+      return;
+    }
+
+    document
+      .getElementById("loginArea")
+      .classList.add("hidden");
+
+    document
+      .getElementById("userArea")
+      .classList.remove("hidden");
+
+    document
+      .getElementById("testArea")
+      .classList.remove("hidden");
+
+    document
+      .getElementById("userInfo")
+      .innerHTML = `
+        <strong>Login sebagai:</strong><br>
+        ${user.email}<br>
+        <small>${user.id}</small>
+      `;
+  }
+
+
+  // =====================================================
+  // LOGOUT
+  // =====================================================
+
+  async function logout() {
+
+    await db.auth.signOut();
+
+    document
+      .getElementById("loginArea")
+      .classList.remove("hidden");
+
+    document
+      .getElementById("userArea")
+      .classList.add("hidden");
+
+    document
+      .getElementById("testArea")
+      .classList.add("hidden");
+
+    setStatus(
+      "Sudah logout.",
+      "info"
+    );
+  }
+
+
+  // =====================================================
+  // TEST PROFILE
+  // =====================================================
+
+  async function testProfile() {
+
+    const {
+      data,
+      error
+    } = await db
+      .from("profiles")
+      .select("*")
+      .single();
+
+    showResult(
+      "profileResult",
+      data,
+      error
+    );
+  }
+
+
+  // =====================================================
+  // TEST ASSIGNMENT
+  // =====================================================
+
+  async function testAssignment() {
+
+    const {
+      data,
+      error
+    } = await db
+      .from("teacher_assignments")
+      .select(`
+        id,
+        academic_year_id,
+        teacher_id,
+        class_id,
+        subject_id,
+        is_active
+      `)
+      .eq("is_active", true);
+
+    showResult(
+      "assignmentResult",
+      data,
+      error
+    );
+  }
+
+
+  // =====================================================
+  // TEST SUMATIF SELECT
+  // =====================================================
+
+  async function testSchedules() {
+
+    const {
+      data,
+      error
+    } = await db
+      .from("sumatif_schedules")
+      .select("*")
+      .order("date");
+
+    showResult(
+      "scheduleResult",
+      data,
+      error
+    );
+  }
+
+
+  // =====================================================
+  // GET ASSIGNMENT
+  // =====================================================
+
+  async function getAssignment() {
+
+    const {
+      data,
+      error
+    } = await db
+      .from("teacher_assignments")
+      .select(`
+        academic_year_id,
+        class_id,
+        subject_id
+      `)
+      .eq("is_active", true)
+      .limit(1)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
+
+  // =====================================================
+  // GET SELECTABLE DATE
+  // =====================================================
+
+  async function getSelectableDate(academicYearId) {
+
+    const {
+      data,
+      error
+    } = await db
+      .from("education_calendar")
+      .select(`
+        date,
+        semester,
+        is_selectable
+      `)
+      .eq("academic_year_id", academicYearId)
+      .eq("is_selectable", true)
+      .order("date")
+      .limit(1)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
+
+  // =====================================================
+  // TEST VALID INSERT
+  // =====================================================
+
+  async function testValidInsert() {
+
+    try {
+
+      setResult(
+        "insertResult",
+        "Menyiapkan INSERT Matematika..."
+      );
+
+      const assignment =
+        await getAssignment();
+
+      const calendar =
+        await getSelectableDate(
+          assignment.academic_year_id
+        );
+
+      const {
+        data,
+        error
+      } = await db
+        .from("sumatif_schedules")
+        .insert({
+
+          academic_year_id:
+            assignment.academic_year_id,
+
+          semester:
+            calendar.semester,
+
+          class_id:
+            assignment.class_id,
+
+          subject_id:
+            assignment.subject_id,
+
+          teacher_id:
+            (
+              await db.auth.getUser()
+            ).data.user.id,
+
+          sumatif_number: 3,
+
+          date:
+            calendar.date,
+
+          material:
+            "RLS TEST - Matematika",
+
+          assessment_type:
+            "written",
+
+          status:
+            "draft"
+
+        })
+        .select()
+        .single();
+
+
+      showResult(
+        "insertResult",
+        data,
+        error
+      );
+
+    } catch (error) {
+
+      setResult(
+        "insertResult",
+        "ERROR:\n\n" +
+        error.message
+      );
+    }
+  }
+
+
+  // =====================================================
+  // TEST INVALID INSERT
+  // =====================================================
+
+  async function testInvalidInsert() {
+
+    try {
+
+      setResult(
+        "insertResult",
+        "Menguji INSERT IPAS...\n\n" +
+        "Seharusnya DITOLAK oleh RLS."
+      );
+
+      const assignment =
+        await getAssignment();
+
+
+      // Cari mata pelajaran IPAS
+
+      const {
+        data: subject,
+        error: subjectError
+      } = await db
+        .from("subjects")
+        .select("id")
+        .eq("name", "IPAS")
+        .single();
+
+      if (subjectError) {
+        throw subjectError;
+      }
+
+
+      // Cari tanggal kalender yang valid
+
+      const calendar =
+        await getSelectableDate(
+          assignment.academic_year_id
+        );
+
+
+      const {
+        data,
+        error
+      } = await db
+        .from("sumatif_schedules")
+        .insert({
+
+          academic_year_id:
+            assignment.academic_year_id,
+
+          semester:
+            calendar.semester,
+
+          class_id:
+            assignment.class_id,
+
+          subject_id:
+            subject.id,
+
+          teacher_id:
+            (
+              await db.auth.getUser()
+            ).data.user.id,
+
+          sumatif_number: 3,
+
+          date:
+            calendar.date,
+
+          material:
+            "RLS TEST - IPAS",
+
+          assessment_type:
+            "written",
+
+          status:
+            "draft"
+
+        })
+        .select()
+        .single();
+
+
+      if (error) {
+
+        setResult(
+          "insertResult",
+          "✅ TEST BERHASIL\n\n" +
+          "INSERT IPAS ditolak.\n\n" +
+          "Pesan Supabase:\n" +
+          error.message
+        );
+
+      } else {
+
+        setResult(
+          "insertResult",
+          "⚠️ PERHATIAN\n\n" +
+          "INSERT IPAS berhasil.\n\n" +
+          JSON.stringify(
+            data,
+            null,
+            2
+          )
+        );
+      }
+
+    } catch (error) {
+
+      setResult(
+        "insertResult",
+        "ERROR:\n\n" +
+        error.message
+      );
+    }
+  }
+
+
+  // =====================================================
+  // UI HELPERS
+  // =====================================================
+
+  function setStatus(message, type = "") {
+
+    const el =
+      document.getElementById("status");
+
+    el.className =
+      "status " + type;
+
+    el.textContent =
+      message;
+  }
+
+
+  function setResult(id, text) {
+
+    document
+      .getElementById(id)
+      .textContent = text;
+  }
+
+
+  function showResult(id, data, error) {
+
+    if (error) {
+
+      setResult(
+        id,
+        "❌ ERROR\n\n" +
+        error.message
+      );
+
+      return;
+    }
+
+    setResult(
+      id,
+      JSON.stringify(
+        data,
+        null,
+        2
+      )
+    );
+  }
+
+
+  // =====================================================
+  // AUTO CHECK SESSION
+  // =====================================================
+
+  db.auth.getSession()
+    .then(({ data }) => {
+
+      if (data.session) {
+        loadUser();
+      }
+
+    });
+
+</script>
+
+</body>
+</html>
