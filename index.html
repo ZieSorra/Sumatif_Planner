@@ -458,30 +458,72 @@
   // GET SELECTABLE DATE
   // =====================================================
 
-  async function getSelectableDate(academicYearId) {
+async function getSelectableDate(academicYearId) {
 
-    const {
-      data,
-      error
-    } = await db
-      .from("education_calendar")
-      .select(`
-        date,
-        semester,
-        is_selectable
-      `)
-      .eq("academic_year_id", academicYearId)
-      .eq("is_selectable", true)
-      .order("date")
-      .limit(1)
-      .single();
+  const {
+    data: calendarData,
+    error: calendarError
+  } = await db
+    .from("education_calendar")
+    .select(`
+      date,
+      semester,
+      is_selectable
+    `)
+    .eq("academic_year_id", academicYearId)
+    .eq("is_selectable", true)
+    .order("date");
 
-    if (error) {
-      throw error;
-    }
-
-    return data;
+  if (calendarError) {
+    throw calendarError;
   }
+
+  if (!calendarData || calendarData.length === 0) {
+    throw new Error(
+      "Tidak ada tanggal selectable dalam Kalender Pendidikan."
+    );
+  }
+
+
+  // Ambil jadwal yang sudah ada
+  const {
+    data: schedules,
+    error: scheduleError
+  } = await db
+    .from("sumatif_schedules")
+    .select(`
+      date,
+      assessment_type
+    `)
+    .eq("academic_year_id", academicYearId);
+
+  if (scheduleError) {
+    throw scheduleError;
+  }
+
+
+  // Cari tanggal dengan kapasitas sumatif tertulis
+  for (const calendar of calendarData) {
+
+    const writtenCount =
+      (schedules || []).filter(schedule =>
+        schedule.date === calendar.date &&
+        schedule.assessment_type === "written"
+      ).length;
+
+
+    if (writtenCount < 2) {
+
+      return calendar;
+
+    }
+  }
+
+
+  throw new Error(
+    "Tidak ditemukan tanggal yang masih memiliki kapasitas Sumatif Tertulis."
+  );
+}
 
 
   // =====================================================
