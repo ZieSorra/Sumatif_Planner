@@ -61,6 +61,7 @@ async function loadUser() {
 
         const user = await getCurrentUser();
 
+
         // --------------------------------------
         // Tidak ada session
         // --------------------------------------
@@ -78,7 +79,9 @@ async function loadUser() {
         // Ambil profile
         // --------------------------------------
 
-        const profile = await getProfile(user.id);
+        const profile =
+            await getProfile(user.id);
+
 
         console.log("USER:", user);
         console.log("PROFILE:", profile);
@@ -229,10 +232,12 @@ if (loginForm) {
                     "";
 
 
-                // ----------------------------------
-                // Jangan loadUser() di sini.
-                // Auth state listener akan menangani.
-                // ----------------------------------
+                /*
+                 * Tidak memanggil loadUser() di sini.
+                 *
+                 * Supabase Auth State Listener
+                 * akan menangani SIGNED_IN.
+                 */
 
 
             } catch (error) {
@@ -312,49 +317,3 @@ supabaseClient.auth.onAuthStateChange(
 
     }
 );
-
-
-// ==========================================
-// LOAD DASHBOARD
-// ==========================================
-
-async function loadDashboard() {
-
-    try {
-
-        const schedules =
-            await getDashboardSchedules();
-
-
-        console.log(
-            "DASHBOARD SCHEDULES:",
-            schedules
-        );
-
-
-        // --------------------------------------
-        // Untuk tahap awal:
-        // data ditampilkan di console.
-        //
-        // Tahap berikutnya kita akan
-        // render data ini ke dashboard.
-        // --------------------------------------
-
-
-    } catch (error) {
-
-        console.error(
-            "Gagal memuat dashboard:",
-            error
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// INITIAL LOAD
-// ==========================================
-
-loadUser();
