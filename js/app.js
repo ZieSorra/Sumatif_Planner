@@ -1,3 +1,13 @@
+// ==========================================
+// SUMATIF PLANNER
+// app.js
+// ==========================================
+
+
+// ==========================================
+// ELEMENT
+// ==========================================
+
 const loginPage = document.getElementById("loginPage");
 const appPage = document.getElementById("appPage");
 
@@ -13,8 +23,13 @@ const logoutBtn = document.getElementById("logoutBtn");
 
 function showLogin() {
 
-    loginPage.classList.remove("hidden");
-    appPage.classList.add("hidden");
+    if (loginPage) {
+        loginPage.classList.remove("hidden");
+    }
+
+    if (appPage) {
+        appPage.classList.add("hidden");
+    }
 
 }
 
@@ -25,8 +40,13 @@ function showLogin() {
 
 function showApp() {
 
-    loginPage.classList.add("hidden");
-    appPage.classList.remove("hidden");
+    if (loginPage) {
+        loginPage.classList.add("hidden");
+    }
+
+    if (appPage) {
+        appPage.classList.remove("hidden");
+    }
 
 }
 
@@ -41,35 +61,37 @@ async function loadUser() {
 
         const user = await getCurrentUser();
 
-
+        // --------------------------------------
         // Tidak ada session
+        // --------------------------------------
+
         if (!user) {
 
             showLogin();
 
             return;
+
         }
 
 
-        // Ambil profile dari Supabase
-        const profile =
-            await getProfile(user.id);
+        // --------------------------------------
+        // Ambil profile
+        // --------------------------------------
 
+        const profile = await getProfile(user.id);
 
         console.log("USER:", user);
         console.log("PROFILE:", profile);
 
 
-        // ======================================
-        // HEADER
-        // ======================================
+        // --------------------------------------
+        // HEADER USER
+        // --------------------------------------
 
         const headerUserName =
-            document.getElementById(
-                "headerUserName"
-            );
+            document.getElementById("headerUserName");
 
-        if (headerUserName) {
+        if (headerUserName && profile) {
 
             headerUserName.textContent =
                 profile.full_name;
@@ -77,16 +99,14 @@ async function loadUser() {
         }
 
 
-        // ======================================
-        // DASHBOARD
-        // ======================================
+        // --------------------------------------
+        // WELCOME
+        // --------------------------------------
 
         const welcomeName =
-            document.getElementById(
-                "welcomeName"
-            );
+            document.getElementById("welcomeName");
 
-        if (welcomeName) {
+        if (welcomeName && profile) {
 
             welcomeName.textContent =
                 profile.full_name;
@@ -94,27 +114,21 @@ async function loadUser() {
         }
 
 
-        // ======================================
+        // --------------------------------------
         // PROFILE
-        // ======================================
+        // --------------------------------------
 
         const profileName =
-            document.getElementById(
-                "profileName"
-            );
+            document.getElementById("profileName");
 
         const profileEmail =
-            document.getElementById(
-                "profileEmail"
-            );
+            document.getElementById("profileEmail");
 
         const profileRole =
-            document.getElementById(
-                "profileRole"
-            );
+            document.getElementById("profileRole");
 
 
-        if (profileName) {
+        if (profileName && profile) {
 
             profileName.textContent =
                 profile.full_name;
@@ -125,12 +139,12 @@ async function loadUser() {
         if (profileEmail) {
 
             profileEmail.textContent =
-                user.email;
+                user.email || "";
 
         }
 
 
-        if (profileRole) {
+        if (profileRole && profile) {
 
             profileRole.textContent =
                 profile.role;
@@ -138,12 +152,18 @@ async function loadUser() {
         }
 
 
-        // ======================================
-        // TAMPILKAN APLIKASI
-        // ======================================
+        // --------------------------------------
+        // TAMPILKAN APP
+        // --------------------------------------
 
         showApp();
-        loaddashboard();
+
+
+        // --------------------------------------
+        // LOAD DASHBOARD
+        // --------------------------------------
+
+        await loadDashboard();
 
 
     } catch (error) {
@@ -164,96 +184,107 @@ async function loadUser() {
 // LOGIN
 // ==========================================
 
-loginForm.addEventListener(
-    "submit",
-    async (event) => {
+if (loginForm) {
 
-        event.preventDefault();
+    loginForm.addEventListener(
+        "submit",
+        async (event) => {
 
-
-        const email =
-            document
-                .getElementById("email")
-                .value
-                .trim();
+            event.preventDefault();
 
 
-        const password =
-            document
-                .getElementById("password")
-                .value;
+            const email =
+                document
+                    .getElementById("email")
+                    .value
+                    .trim();
 
 
-        loginMessage.textContent =
-            "Sedang masuk...";
+            const password =
+                document
+                    .getElementById("password")
+                    .value;
 
 
-        try {
+            loginMessage.textContent =
+                "Sedang masuk...";
 
-            const data =
-                await login(
-                    email,
-                    password
+
+            try {
+
+                const data =
+                    await login(
+                        email,
+                        password
+                    );
+
+
+                console.log(
+                    "LOGIN BERHASIL:",
+                    data
                 );
 
 
-            console.log(
-                "LOGIN BERHASIL:",
-                data
-            );
+                loginMessage.textContent =
+                    "";
 
 
-            loginMessage.textContent =
-                "";
+                // ----------------------------------
+                // Jangan loadUser() di sini.
+                // Auth state listener akan menangani.
+                // ----------------------------------
 
 
-            await loadUser();
+            } catch (error) {
+
+                console.error(
+                    "LOGIN ERROR:",
+                    error
+                );
 
 
-        } catch (error) {
+                loginMessage.textContent =
+                    "Login gagal: " +
+                    error.message;
 
-            console.error(
-                "LOGIN ERROR:",
-                error
-            );
-
-
-            loginMessage.textContent =
-                "Login gagal: " +
-                error.message;
+            }
 
         }
+    );
 
-    }
-);
+}
 
 
 // ==========================================
 // LOGOUT
 // ==========================================
 
-logoutBtn.addEventListener(
-    "click",
-    async () => {
+if (logoutBtn) {
 
-        try {
+    logoutBtn.addEventListener(
+        "click",
+        async () => {
 
-            await logout();
+            try {
 
-            showLogin();
+                await logout();
+
+                showLogin();
 
 
-        } catch (error) {
+            } catch (error) {
 
-            console.error(
-                "LOGOUT ERROR:",
-                error
-            );
+                console.error(
+                    "LOGOUT ERROR:",
+                    error
+                );
+
+            }
 
         }
+    );
 
-    }
-);
+}
 
 
 // ==========================================
@@ -282,6 +313,7 @@ supabaseClient.auth.onAuthStateChange(
     }
 );
 
+
 // ==========================================
 // LOAD DASHBOARD
 // ==========================================
@@ -290,17 +322,37 @@ async function loadDashboard() {
 
     try {
 
-        const schedules = await getDashboardSchedules();
+        const schedules =
+            await getDashboardSchedules();
 
-        console.log("DASHBOARD SCHEDULES:", schedules);
+
+        console.log(
+            "DASHBOARD SCHEDULES:",
+            schedules
+        );
+
+
+        // --------------------------------------
+        // Untuk tahap awal:
+        // data ditampilkan di console.
+        //
+        // Tahap berikutnya kita akan
+        // render data ini ke dashboard.
+        // --------------------------------------
+
 
     } catch (error) {
 
-        console.error("Gagal memuat dashboard:", error);
+        console.error(
+            "Gagal memuat dashboard:",
+            error
+        );
 
     }
 
-};
+}
+
+
 // ==========================================
 // INITIAL LOAD
 // ==========================================
