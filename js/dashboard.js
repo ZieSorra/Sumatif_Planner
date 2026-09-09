@@ -1,7 +1,6 @@
 let currentUser = null;
 let currentProfile = null;
 
-
 // ==========================================
 // LOAD DASHBOARD
 // ==========================================
@@ -55,7 +54,6 @@ async function loadDashboard() {
     }
 
 }
-
 
 // ==========================================
 // LOAD TEACHER ASSIGNMENTS
