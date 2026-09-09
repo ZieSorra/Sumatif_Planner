@@ -1,11 +1,6 @@
-const supabaseClient = createClient(
+const supabaseClient = supabase.createClient(
     SUPABASE_URL,
-    SUPABASE_ANON_KEY,
-    {
-        auth: {
-            persistSession: false,
-            autoRefreshToken: false,
-            detectSessionInUrl: false
-        }
-    }
+    SUPABASE_ANON_KEY
 );
+
+console.log("Supabase client berhasil dibuat.");
