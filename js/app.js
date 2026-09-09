@@ -143,6 +143,7 @@ async function loadUser() {
         // ======================================
 
         showApp();
+        loaddashboard();
 
 
     } catch (error) {
@@ -305,4 +306,3 @@ async function loadDashboard() {
 // ==========================================
 
 loadUser();
-loaddashboard();
