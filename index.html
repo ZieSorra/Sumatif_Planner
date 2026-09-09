@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,104 +12,79 @@
 
 <body>
 
-    <!-- =========================
-         LOGIN PAGE
-    ========================== -->
+    <div id="app">
 
-    <section id="loginPage" class="page">
+        <!-- =========================
+             LOGIN PAGE
+        ========================== -->
 
-        <div class="login-card">
+        <section id="loginPage" class="page">
 
-            <h1>Sumatif Planner</h1>
+            <div class="login-card">
 
-            <p class="subtitle">
-                Kelola jadwal sumatif dengan lebih mudah.
-            </p>
+                <h1>Sumatif Planner</h1>
 
-            <form id="loginForm">
+                <p class="subtitle">
+                    Kelola jadwal sumatif dengan lebih mudah.
+                </p>
 
-                <div class="form-group">
+                <form id="loginForm">
 
-                    <label for="email">
-                        Email
-                    </label>
+                    <div class="form-group">
+                        <label for="email">Email</label>
 
-                    <input
-                        type="email"
-                        id="email"
-                        required
-                        placeholder="Masukkan email"
+                        <input
+                            type="email"
+                            id="email"
+                            required
+                            placeholder="Masukkan email"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+
+                        <input
+                            type="password"
+                            id="password"
+                            required
+                            placeholder="Masukkan password"
+                        >
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn-primary"
                     >
+                        Masuk
+                    </button>
 
-                </div>
+                </form>
 
+                <div id="loginMessage"></div>
 
-                <div class="form-group">
-
-                    <label for="password">
-                        Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="password"
-                        required
-                        placeholder="Masukkan password"
-                    >
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="btn-primary"
-                >
-                    Masuk
-                </button>
-
-            </form>
-
-
-            <div id="loginMessage"></div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- =========================
-         APPLICATION
-    ========================== -->
-
-    <section
-        id="appPage"
-        class="app-page hidden"
-    >
-
-        <!-- TOPBAR -->
-
-        <header class="topbar">
-
-            <button
-                id="sidebarToggle"
-                class="menu-button"
-                aria-label="Buka atau tutup menu"
-            >
-                ☰
-            </button>
-
-
-            <div class="brand">
-                SUMATIF PLANNER
             </div>
 
+        </section>
 
-            <div class="user-area">
 
-                <span id="headerUserName">
-                    Guru
-                </span>
+        <!-- =========================
+             APPLICATION
+        ========================== -->
+
+        <section id="appPage" class="page hidden">
+
+            <!-- HEADER -->
+
+            <header class="app-header">
+
+                <div>
+
+                    <h1>Sumatif Planner</h1>
+
+                    <p id="userInfo"></p>
+
+                </div>
 
                 <button
                     id="logoutBtn"
@@ -117,377 +93,220 @@
                     Logout
                 </button>
 
-            </div>
-
-        </header>
+            </header>
 
 
+            <!-- MAIN -->
 
-        <!-- APP LAYOUT -->
+            <main class="app-content">
 
-        <div class="app-layout">
+                <!-- WELCOME -->
+
+                <section class="welcome-card">
+
+                    <h2>
+                        Selamat datang, <span id="welcomeName"></span> 👋
+                    </h2>
+
+                    <p>
+                        Berikut adalah jadwal sumatif Anda.
+                    </p>
+
+                </section>
 
 
-            <!-- SIDEBAR -->
+                <!-- SUMMARY -->
 
-            <aside
-                id="sidebar"
-                class="sidebar"
-            >
+                <section class="dashboard-summary">
 
-                <nav>
+                    <div class="summary-card">
 
-                    <button
-                        class="menu-item active"
-                        data-page="dashboard"
+                        <span class="summary-label">
+                            Total Jadwal
+                        </span>
+
+                        <strong
+                            id="totalSchedule"
+                            class="summary-value"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-card">
+
+                        <span class="summary-label">
+                            Jadwal Bulan Ini
+                        </span>
+
+                        <strong
+                            id="monthlySchedule"
+                            class="summary-value"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-card">
+
+                        <span class="summary-label">
+                            Tertulis
+                        </span>
+
+                        <strong
+                            id="writtenSchedule"
+                            class="summary-value"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-card">
+
+                        <span class="summary-label">
+                            Praktik
+                        </span>
+
+                        <strong
+                            id="practicalSchedule"
+                            class="summary-value"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </section>
+
+
+                <!-- JADWAL -->
+
+                <section class="schedule-section">
+
+                    <div class="section-header">
+
+                        <div>
+
+                            <h2>
+                                Jadwal Sumatif
+                            </h2>
+
+                            <p>
+                                Daftar jadwal sumatif Anda.
+                            </p>
+
+                        </div>
+
+                        <button
+                            id="addScheduleBtn"
+                            class="btn-primary"
+                        >
+                            + Tambah Jadwal
+                        </button>
+
+                    </div>
+
+
+                    <!-- LOADING -->
+
+                    <div
+                        id="scheduleLoading"
+                        class="loading"
                     >
-                        <span>⌂</span>
-                        <span>Dashboard</span>
-                    </button>
+                        Memuat jadwal...
+                    </div>
 
 
-                    <button
-                        class="menu-item"
-                        data-page="calendar"
+                    <!-- EMPTY -->
+
+                    <div
+                        id="scheduleEmpty"
+                        class="empty-state hidden"
                     >
-                        <span>▣</span>
-                        <span>Kalender Sumatif</span>
-                    </button>
+                        <h3>
+                            Belum ada jadwal
+                        </h3>
+
+                        <p>
+                            Belum ada jadwal sumatif yang dibuat.
+                        </p>
+                    </div>
 
 
-                    <button
-                        class="menu-item"
-                        data-page="schedule"
+                    <!-- TABLE -->
+
+                    <div
+                        id="scheduleContainer"
+                        class="schedule-container hidden"
                     >
-                        <span>◫</span>
-                        <span>Jadwal Sumatif</span>
-                    </button>
 
+                        <table class="schedule-table">
 
-                    <button
-                        class="menu-item"
-                        data-page="profile"
-                    >
-                        <span>◎</span>
-                        <span>Profil</span>
-                    </button>
+                            <thead>
 
-                </nav>
+                                <tr>
 
-            </aside>
+                                    <th>
+                                        No
+                                    </th>
 
+                                    <th>
+                                        Tanggal
+                                    </th>
 
+                                    <th>
+                                        Kelas
+                                    </th>
 
-            <!-- MAIN CONTENT -->
+                                    <th>
+                                        Mata Pelajaran
+                                    </th>
 
-            <main class="main-content">
+                                    <th>
+                                        Sumatif
+                                    </th>
 
+                                    <th>
+                                        Materi
+                                    </th>
 
-                <!-- =========================
-                     DASHBOARD
-                ========================== -->
+                                    <th>
+                                        Jenis
+                                    </th>
 
-                <div
-                    id="dashboardPage"
-                    class="page"
-                >
+                                    <th>
+                                        Status
+                                    </th>
 
-                    <div class="page-header">
+                                    <th>
+                                        Aksi
+                                    </th>
 
-                        <h1>
-                            Selamat datang,
-                            <span id="welcomeName">
-                                Guru
-                            </span>
-                            👋
-                        </h1>
+                                </tr>
 
-                        <p>
-                            Kelola jadwal sumatif dengan lebih mudah.
-                        </p>
+                            </thead>
 
-                    </div>
+                            <tbody id="scheduleTableBody">
 
+                            </tbody>
 
-
-                    <!-- SUMMARY CARDS -->
-
-                    <div class="summary-grid">
-
-
-                        <div class="summary-card">
-
-                            <div class="summary-icon">
-                                📚
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Tahun Ajaran
-                                </span>
-
-                                <strong id="academicYear">
-                                    -
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-
-                        <div class="summary-card">
-
-                            <div class="summary-icon">
-                                🏫
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Kelas
-                                </span>
-
-                                <strong id="className">
-                                    -
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-
-                        <div class="summary-card">
-
-                            <div class="summary-icon">
-                                📝
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Jadwal Sumatif
-                                </span>
-
-                                <strong id="scheduleCount">
-                                    0
-                                </strong>
-
-                            </div>
-
-                        </div>
+                        </table>
 
                     </div>
 
-
-
-                    <!-- UPCOMING SCHEDULE -->
-
-                    <section class="content-card">
-
-                        <div class="section-header">
-
-                            <div>
-
-                                <h2>
-                                    Jadwal Sumatif Terdekat
-                                </h2>
-
-                                <p>
-                                    Jadwal sumatif yang akan datang.
-                                </p>
-
-                            </div>
-
-
-                            <button
-                                class="secondary-button"
-                                data-page="schedule"
-                            >
-                                Lihat Semua
-                            </button>
-
-                        </div>
-
-
-                        <div id="upcomingSchedules">
-
-                            <div class="empty-state">
-
-                                <div class="empty-icon">
-                                    📅
-                                </div>
-
-                                <h3>
-                                    Belum ada jadwal
-                                </h3>
-
-                                <p>
-                                    Jadwal sumatif akan muncul di sini.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </section>
-
-                </div>
-
-
-
-                <!-- =========================
-                     KALENDER SUMATIF
-                ========================== -->
-
-                <div
-                    id="calendarPage"
-                    class="page hidden"
-                >
-
-                    <div class="page-header">
-
-                        <h1>
-                            Kalender Sumatif
-                        </h1>
-
-                        <p>
-                            Resume jadwal sumatif berdasarkan kelas.
-                        </p>
-
-                    </div>
-
-
-                    <div class="content-card">
-
-                        <p>
-                            Halaman Kalender Sumatif akan kita bangun
-                            pada tahap berikutnya.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- =========================
-                     JADWAL SUMATIF
-                ========================== -->
-
-                <div
-                    id="schedulePage"
-                    class="page hidden"
-                >
-
-                    <div class="page-header">
-
-                        <h1>
-                            Jadwal Sumatif
-                        </h1>
-
-                        <p>
-                            Buat dan kelola jadwal sumatif Anda.
-                        </p>
-
-                    </div>
-
-
-                    <div id="subjectCards">
-
-                        <div class="empty-state">
-
-                            <div class="empty-icon">
-                                📚
-                            </div>
-
-                            <h3>
-                                Memuat mata pelajaran...
-                            </h3>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- =========================
-                     PROFIL
-                ========================== -->
-
-                <div
-                    id="profilePage"
-                    class="page hidden"
-                >
-
-                    <div class="page-header">
-
-                        <h1>
-                            Profil
-                        </h1>
-
-                        <p>
-                            Informasi akun guru.
-                        </p>
-
-                    </div>
-
-
-                    <div class="content-card">
-
-                        <div class="profile-row">
-
-                            <span>
-                                Nama
-                            </span>
-
-                            <strong id="profileName">
-                                -
-                            </strong>
-
-                        </div>
-
-
-                        <div class="profile-row">
-
-                            <span>
-                                Email
-                            </span>
-
-                            <strong id="profileEmail">
-                                -
-                            </strong>
-
-                        </div>
-
-
-                        <div class="profile-row">
-
-                            <span>
-                                Role
-                            </span>
-
-                            <strong id="profileRole">
-                                -
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
+                </section>
 
             </main>
 
-        </div>
+        </section>
 
-    </section>
-
+    </div>
 
 
     <!-- =========================
@@ -497,29 +316,20 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
-    <!-- CONFIG -->
+    <!-- =========================
+         APPLICATION JS
+    ========================== -->
 
     <script src="js/config.js"></script>
 
-
-    <!-- SUPABASE CLIENT -->
-
     <script src="js/supabase.js"></script>
-
-
-    <!-- AUTH -->
 
     <script src="js/auth.js"></script>
 
-
-    <!-- DASHBOARD -->
-
     <script src="js/dashboard.js"></script>
-
-
-    <!-- APP -->
 
     <script src="js/app.js"></script>
 
 </body>
+
 </html>
