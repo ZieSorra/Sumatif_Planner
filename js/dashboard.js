@@ -1,3 +1,7 @@
+/* =========================================
+   GET DASHBOARD SCHEDULES
+========================================= */
+
 async function getDashboardSchedules() {
 
     const user = await getCurrentUser();
@@ -50,6 +54,8 @@ async function getDashboardSchedules() {
 
 async function loadDashboard() {
 
+    console.log("LOAD DASHBOARD DIMULAI");
+
     const loading =
         document.getElementById("scheduleLoading");
 
@@ -62,10 +68,24 @@ async function loadDashboard() {
     const tableBody =
         document.getElementById("scheduleTableBody");
 
+    const totalSchedule =
+        document.getElementById("totalSchedule");
+
+    const monthlySchedule =
+        document.getElementById("monthlySchedule");
+
+    const writtenSchedule =
+        document.getElementById("writtenSchedule");
+
+    const practicalSchedule =
+        document.getElementById("practicalSchedule");
+
 
     try {
 
-        // Tampilkan loading
+        /* ==============================
+           RESET TAMPILAN
+        ============================== */
 
         if (loading) {
             loading.classList.remove("hidden");
@@ -80,7 +100,9 @@ async function loadDashboard() {
         }
 
 
-        // Ambil data
+        /* ==============================
+           AMBIL DATA
+        ============================== */
 
         const schedules =
             await getDashboardSchedules();
@@ -90,36 +112,22 @@ async function loadDashboard() {
             schedules
         );
 
-
-        // Sembunyikan loading
-
-        if (loading) {
-            loading.classList.add("hidden");
-        }
+        console.log(
+            "JUMLAH JADWAL:",
+            schedules.length
+        );
 
 
-        // ==============================
-        // SUMMARY
-        // ==============================
-
-        const totalSchedule =
-            document.getElementById("totalSchedule");
-
-        const monthlySchedule =
-            document.getElementById("monthlySchedule");
-
-        const writtenSchedule =
-            document.getElementById("writtenSchedule");
-
-        const practicalSchedule =
-            document.getElementById("practicalSchedule");
-
+        /* ==============================
+           SUMMARY
+        ============================== */
 
         const total =
             schedules.length;
 
 
-        const now = new Date();
+        const now =
+            new Date();
 
         const currentYear =
             now.getFullYear();
@@ -136,7 +144,9 @@ async function loadDashboard() {
                 }
 
                 const date =
-                    new Date(item.date + "T00:00:00");
+                    new Date(
+                        item.date + "T00:00:00"
+                    );
 
                 return (
                     date.getFullYear() === currentYear &&
@@ -158,26 +168,54 @@ async function loadDashboard() {
             ).length;
 
 
+        console.log(
+            "SUMMARY:",
+            {
+                total,
+                monthly,
+                written,
+                practical
+            }
+        );
+
+
+        /* ==============================
+           UPDATE SUMMARY
+        ============================== */
+
         if (totalSchedule) {
-            totalSchedule.textContent = total;
+            totalSchedule.textContent =
+                total;
         }
 
         if (monthlySchedule) {
-            monthlySchedule.textContent = monthly;
+            monthlySchedule.textContent =
+                monthly;
         }
 
         if (writtenSchedule) {
-            writtenSchedule.textContent = written;
+            writtenSchedule.textContent =
+                written;
         }
 
         if (practicalSchedule) {
-            practicalSchedule.textContent = practical;
+            practicalSchedule.textContent =
+                practical;
         }
 
 
-        // ==============================
-        // TIDAK ADA DATA
-        // ==============================
+        /* ==============================
+           SELESAI LOADING
+        ============================== */
+
+        if (loading) {
+            loading.classList.add("hidden");
+        }
+
+
+        /* ==============================
+           TIDAK ADA DATA
+        ============================== */
 
         if (schedules.length === 0) {
 
@@ -189,9 +227,9 @@ async function loadDashboard() {
         }
 
 
-        // ==============================
-        // TAMPILKAN TABLE
-        // ==============================
+        /* ==============================
+           TAMPILKAN CONTAINER
+        ============================== */
 
         if (container) {
             container.classList.remove("hidden");
@@ -199,98 +237,102 @@ async function loadDashboard() {
 
 
         if (!tableBody) {
+
+            console.error(
+                "scheduleTableBody tidak ditemukan."
+            );
+
             return;
         }
 
 
+        /* ==============================
+           ISI TABLE
+        ============================== */
+
         tableBody.innerHTML = "";
 
 
-        schedules.forEach((item, index) => {
+        schedules.forEach(
+            (item, index) => {
 
-            const row =
-                document.createElement("tr");
-
-
-            const date =
-                formatDashboardDate(item.date);
+                const row =
+                    document.createElement("tr");
 
 
-            const className =
-                item.classes?.name || "-";
+                const className =
+                    item.classes?.name || "-";
 
 
-            const subjectName =
-                item.subjects?.name || "-";
+                const subjectName =
+                    item.subjects?.name || "-";
 
 
-            const assessmentType =
-                formatAssessmentType(
-                    item.assessment_type
-                );
+                row.innerHTML = `
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${formatDashboardDate(item.date)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(className)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(subjectName)}
+                    </td>
+
+                    <td>
+                        Sumatif ${item.sumatif_number}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.material)}
+                    </td>
+
+                    <td>
+                        ${formatAssessmentType(
+                            item.assessment_type
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatStatus(item.status)}
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="btn-action"
+                            onclick="viewSchedule('${item.id}')"
+                        >
+                            Lihat
+                        </button>
+
+                    </td>
+
+                `;
 
 
-            const status =
-                formatStatus(item.status);
+                tableBody.appendChild(row);
+
+            }
+        );
 
 
-            row.innerHTML = `
-
-                <td>
-                    ${index + 1}
-                </td>
-
-                <td>
-                    ${date}
-                </td>
-
-                <td>
-                    ${className}
-                </td>
-
-                <td>
-                    ${subjectName}
-                </td>
-
-                <td>
-                    Sumatif ${item.sumatif_number}
-                </td>
-
-                <td>
-                    ${escapeHtml(item.material)}
-                </td>
-
-                <td>
-                    ${assessmentType}
-                </td>
-
-                <td>
-                    ${status}
-                </td>
-
-                <td>
-
-                    <button
-                        class="btn-action"
-                        onclick="viewSchedule('${item.id}')"
-                    >
-                        Lihat
-                    </button>
-
-                </td>
-
-            `;
-
-
-            tableBody.appendChild(row);
-
-        });
+        console.log(
+            "TABLE DASHBOARD BERHASIL DITAMPILKAN"
+        );
 
 
     } catch (error) {
 
         console.error(
-            "Gagal memuat dashboard:",
+            "GAGAL MEMUAT DASHBOARD:",
             error
         );
 
@@ -300,20 +342,20 @@ async function loadDashboard() {
         }
 
 
+        if (container) {
+            container.classList.add("hidden");
+        }
+
+
         if (empty) {
 
             empty.classList.remove("hidden");
 
             empty.innerHTML = `
-
-                <h3>
-                    Gagal memuat jadwal
-                </h3>
-
+                <h3>Gagal memuat jadwal</h3>
                 <p>
                     ${escapeHtml(error.message)}
                 </p>
-
             `;
 
         }
@@ -334,8 +376,9 @@ function formatDashboardDate(dateString) {
     }
 
     const date =
-        new Date(dateString + "T00:00:00");
-
+        new Date(
+            dateString + "T00:00:00"
+        );
 
     return date.toLocaleDateString(
         "id-ID",
@@ -350,7 +393,7 @@ function formatDashboardDate(dateString) {
 
 
 /* =========================================
-   FORMAT JENIS PENILAIAN
+   FORMAT ASSESSMENT
 ========================================= */
 
 function formatAssessmentType(type) {
@@ -397,7 +440,10 @@ function formatStatus(status) {
 
 function escapeHtml(value) {
 
-    if (value === null || value === undefined) {
+    if (
+        value === null ||
+        value === undefined
+    ) {
         return "";
     }
 
