@@ -281,9 +281,28 @@ supabaseClient.auth.onAuthStateChange(
     }
 );
 
+// ==========================================
+// LOAD DASHBOARD
+// ==========================================
 
+async function loadDashboard() {
+
+    try {
+
+        const schedules = await getDashboardSchedules();
+
+        console.log("DASHBOARD SCHEDULES:", schedules);
+
+    } catch (error) {
+
+        console.error("Gagal memuat dashboard:", error);
+
+    }
+
+};
 // ==========================================
 // INITIAL LOAD
 // ==========================================
 
 loadUser();
+loaddashboard();
