@@ -297,17 +297,20 @@ if (logoutBtn) {
 // ==========================================
 
 supabaseClient.auth.onAuthStateChange(
-    async (event, session) => {
+    (event, session) => {
 
         console.log(
             "AUTH EVENT:",
             event
         );
 
-
         if (session) {
 
-            await loadUser();
+            // Jangan langsung memanggil fungsi async
+            // yang kembali mengakses Supabase
+            setTimeout(() => {
+                loadUser();
+            }, 0);
 
         } else {
 
