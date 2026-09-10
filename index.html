@@ -185,124 +185,240 @@
                 </section>
 
 
-                <!-- JADWAL -->
+                    <!-- =========================
+     JADWAL SUMATIF
+========================== -->
 
-                <section class="schedule-section">
+<section class="schedule-section">
 
-                    <div class="section-header">
+    <div class="section-header">
 
-                        <div>
+        <div>
+            <h2>Jadwal Sumatif</h2>
 
-                            <h2>
-                                Jadwal Sumatif
-                            </h2>
+            <p>
+                Pilih konteks pembelajaran untuk
+                menampilkan kalender pendidikan.
+            </p>
+        </div>
 
-                            <p>
-                                Daftar jadwal sumatif Anda.
-                            </p>
-
-                        </div>
-
-                        <button
-                            id="addScheduleBtn"
-                            class="btn-primary"
-                        >
-                            + Tambah Jadwal
-                        </button>
-
-                    </div>
+    </div>
 
 
-                    <!-- LOADING -->
+    <!-- =========================
+         KONTEKS PEMBELAJARAN
+    ========================== -->
 
-                    <div
-                        id="scheduleLoading"
-                        class="loading"
-                    >
-                        Memuat jadwal...
-                    </div>
+    <section class="schedule-context-card">
+
+        <div class="context-header">
+
+            <div class="context-icon">
+                ◫
+            </div>
+
+            <div>
+
+                <h3>
+                    Konteks Pembelajaran
+                </h3>
+
+                <p>
+                    Tentukan tahun pelajaran,
+                    kelas, dan semester.
+                </p>
+
+            </div>
+
+        </div>
 
 
-                    <!-- EMPTY -->
+        <div class="context-fields">
 
-                    <div
-                        id="scheduleEmpty"
-                        class="empty-state hidden"
-                    >
-                        <h3>
-                            Belum ada jadwal
-                        </h3>
+            <!-- TAHUN PELAJARAN -->
 
-                        <p>
-                            Belum ada jadwal sumatif yang dibuat.
-                        </p>
-                    </div>
+            <div class="filter-group">
+
+                <label for="scheduleYearFilter">
+                    Tahun Pelajaran
+                </label>
+
+                <select id="scheduleYearFilter">
+
+                    <option value="">
+                        Pilih Tahun Pelajaran
+                    </option>
+
+                </select>
+
+            </div>
 
 
-                    <!-- TABLE -->
+            <!-- KELAS -->
 
-                    <div
-                        id="scheduleContainer"
-                        class="schedule-container hidden"
-                    >
+            <div class="filter-group">
 
-                        <table class="schedule-table">
+                <label for="scheduleClassFilter">
+                    Kelas
+                </label>
 
-                            <thead>
+                <select id="scheduleClassFilter">
 
-                                <tr>
+                    <option value="">
+                        Pilih Kelas
+                    </option>
 
-                                    <th>
-                                        No
-                                    </th>
+                </select>
 
-                                    <th>
-                                        Tanggal
-                                    </th>
+            </div>
 
-                                    <th>
-                                        Kelas
-                                    </th>
 
-                                    <th>
-                                        Mata Pelajaran
-                                    </th>
+            <!-- SEMESTER -->
 
-                                    <th>
-                                        Sumatif
-                                    </th>
+            <div class="filter-group">
 
-                                    <th>
-                                        Materi
-                                    </th>
+                <label for="scheduleSemesterFilter">
+                    Semester
+                </label>
 
-                                    <th>
-                                        Jenis
-                                    </th>
+                <select id="scheduleSemesterFilter">
 
-                                    <th>
-                                        Status
-                                    </th>
+                    <option value="">
+                        Pilih Semester
+                    </option>
 
-                                    <th>
-                                        Aksi
-                                    </th>
+                    <option value="Ganjil">
+                        Ganjil
+                    </option>
 
-                                </tr>
+                    <option value="Genap">
+                        Genap
+                    </option>
 
-                            </thead>
+                </select>
 
-                            <tbody id="scheduleTableBody">
+            </div>
 
-                            </tbody>
+        </div>
 
-                        </table>
+    </section>
 
-                    </div>
 
-                </section>
+    <!-- =========================
+         INFO SEBELUM FILTER
+    ========================== -->
 
-            </main>
+    <section
+        id="calendarEmpty"
+        class="schedule-empty"
+    >
+
+        <div class="empty-calendar-icon">
+            ▦
+        </div>
+
+        <h3>
+            Pilih konteks pembelajaran
+        </h3>
+
+        <p>
+            Kalender pendidikan akan muncul
+            setelah Tahun Pelajaran, Kelas,
+            dan Semester dipilih.
+        </p>
+
+    </section>
+
+
+    <!-- =========================
+         KALENDER PENDIDIKAN
+    ========================== -->
+
+    <section
+        id="educationCalendarSection"
+        class="calendar-section hidden"
+    >
+
+        <div class="calendar-header">
+
+            <div>
+
+                <h3>
+                    Kalender Pendidikan
+                </h3>
+
+                <p id="calendarContext">
+                </p>
+
+            </div>
+
+
+            <div class="calendar-legend">
+
+                <span>
+                    <i class="legend available"></i>
+                    Tersedia
+                </span>
+
+                <span>
+                    <i class="legend schedule"></i>
+                    Sumatif
+                </span>
+
+                <span>
+                    <i class="legend blocked"></i>
+                    Tidak tersedia
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="calendarGrid"
+            class="calendar-grid"
+        ></div>
+
+    </section>
+
+
+    <!-- =========================
+         DAFTAR JADWAL
+    ========================== -->
+
+    <section
+        id="scheduleListSection"
+        class="schedule-list-section hidden"
+    >
+
+        <div class="schedule-list-header">
+
+            <div>
+
+                <h3>
+                    Jadwal Sumatif
+                </h3>
+
+                <p>
+                    Jadwal pada konteks yang dipilih.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="scheduleList"
+            class="schedule-list"
+        ></div>
+
+    </section>
+
+</section>
+
+ </main>
 <!-- =========================
      MODAL TAMBAH JADWAL
 ========================== -->
