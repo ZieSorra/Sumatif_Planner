@@ -1,18 +1,42 @@
-/* =========================================
-   GET DASHBOARD SCHEDULES
-========================================= */
+// ==========================================
+// SUMATIF PLANNER
+// dashboard.js FINAL
+// ==========================================
+
+
+// ==========================================
+// GET DASHBOARD SCHEDULES
+// ==========================================
 
 async function getDashboardSchedules() {
 
-    const user = await getCurrentUser();
+
+    const user =
+        await getCurrentUser();
+
+
 
     if (!user) {
-        throw new Error("User belum login.");
+
+        throw new Error(
+            "User belum login."
+        );
+
     }
 
-    const { data, error } = await supabaseClient
-        .from("sumatif_schedules")
-        .select(`
+
+
+    const {
+        data,
+        error
+    }
+    =
+    await supabaseClient
+        .from(
+            "sumatif_schedules"
+        )
+        .select(
+            `
             id,
             sumatif_number,
             date,
@@ -23,94 +47,91 @@ async function getDashboardSchedules() {
             room,
             notes,
             status,
+
             academic_years (
                 name
             ),
+
             classes (
                 name,
                 level
             ),
+
             subjects (
                 name,
                 short_name
             )
-        `)
-        .eq("teacher_id", user.id)
-        .order("date", { ascending: true })
-        .order("start_time", { ascending: true });
 
-    if (error) {
-        console.error("Gagal mengambil jadwal:", error);
+            `
+        )
+        .eq(
+            "teacher_id",
+            user.id
+        )
+        .order(
+            "date",
+            {
+                ascending:true
+            }
+        )
+        .order(
+            "start_time",
+            {
+                ascending:true
+            }
+        );
+
+
+
+    if(error){
+
+        console.error(
+            "Gagal mengambil jadwal:",
+            error
+        );
+
         throw error;
+
     }
 
+
+
     return data || [];
+
+
 }
 
 
-/* =========================================
-   LOAD DASHBOARD
-========================================= */
-
-async function loadDashboard() {
-
-    console.log("LOAD DASHBOARD DIMULAI");
-
-    const loading =
-        document.getElementById("scheduleLoading");
-
-    const empty =
-        document.getElementById("scheduleEmpty");
-
-    const container =
-        document.getElementById("scheduleContainer");
-
-    const tableBody =
-        document.getElementById("scheduleTableBody");
-
-    const totalSchedule =
-        document.getElementById("totalSchedule");
-
-    const monthlySchedule =
-        document.getElementById("monthlySchedule");
-
-    const writtenSchedule =
-        document.getElementById("writtenSchedule");
-
-    const practicalSchedule =
-        document.getElementById("practicalSchedule");
 
 
-    try {
 
-        /* ==============================
-           RESET TAMPILAN
-        ============================== */
+// ==========================================
+// LOAD DASHBOARD
+// ==========================================
 
-        if (loading) {
-            loading.classList.remove("hidden");
-        }
-
-        if (empty) {
-            empty.classList.add("hidden");
-        }
-
-        if (container) {
-            container.classList.add("hidden");
-        }
+async function loadDashboard(){
 
 
-        /* ==============================
-           AMBIL DATA
-        ============================== */
+    console.log(
+        "LOAD DASHBOARD DIMULAI"
+    );
+
+
+
+    try{
+
 
         const schedules =
             await getDashboardSchedules();
+
+
 
         console.log(
             "DASHBOARD SCHEDULES:",
             schedules
         );
+
+
 
         console.log(
             "JUMLAH JADWAL:",
@@ -118,218 +139,183 @@ async function loadDashboard() {
         );
 
 
-        /* ==============================
-           SUMMARY
-        ============================== */
+
+
+
+        // =================================
+        // SUMMARY
+        // =================================
+
 
         const total =
             schedules.length;
 
 
+
         const now =
             new Date();
 
-        const currentYear =
-            now.getFullYear();
 
-        const currentMonth =
+
+        const month =
             now.getMonth();
 
 
+
+        const year =
+            now.getFullYear();
+
+
+
+
         const monthly =
-            schedules.filter(item => {
+            schedules.filter(
+                item => {
 
-                if (!item.date) {
-                    return false;
-                }
 
-                const date =
-                    new Date(
-                        item.date + "T00:00:00"
+                    if(
+                        !item.date
+                    ){
+
+                        return false;
+
+                    }
+
+
+
+                    const date =
+                        new Date(
+                            item.date
+                            +
+                            "T00:00:00"
+                        );
+
+
+
+                    return (
+
+                        date.getMonth()
+                        ===
+                        month
+
+                        &&
+
+                        date.getFullYear()
+                        ===
+                        year
+
                     );
 
-                return (
-                    date.getFullYear() === currentYear &&
-                    date.getMonth() === currentMonth
-                );
 
-            }).length;
+                }
+            )
+            .length;
+
+
+
 
 
         const written =
-            schedules.filter(item =>
-                item.assessment_type === "written"
-            ).length;
+            schedules.filter(
+                item =>
+
+                item.assessment_type
+                ===
+                "written"
+
+            )
+            .length;
+
+
+
 
 
         const practical =
-            schedules.filter(item =>
-                item.assessment_type === "practical"
-            ).length;
+            schedules.filter(
+                item =>
+
+                item.assessment_type
+                ===
+                "practical"
+
+            )
+            .length;
+
+
+
 
 
         console.log(
             "SUMMARY:",
             {
+
                 total,
+
                 monthly,
+
                 written,
+
                 practical
-            }
-        );
-
-
-        /* ==============================
-           UPDATE SUMMARY
-        ============================== */
-
-        if (totalSchedule) {
-            totalSchedule.textContent =
-                total;
-        }
-
-        if (monthlySchedule) {
-            monthlySchedule.textContent =
-                monthly;
-        }
-
-        if (writtenSchedule) {
-            writtenSchedule.textContent =
-                written;
-        }
-
-        if (practicalSchedule) {
-            practicalSchedule.textContent =
-                practical;
-        }
-
-
-        /* ==============================
-           SELESAI LOADING
-        ============================== */
-
-        if (loading) {
-            loading.classList.add("hidden");
-        }
-
-
-        /* ==============================
-           TIDAK ADA DATA
-        ============================== */
-
-        if (schedules.length === 0) {
-
-            if (empty) {
-                empty.classList.remove("hidden");
-            }
-
-            return;
-        }
-
-
-        /* ==============================
-           TAMPILKAN CONTAINER
-        ============================== */
-
-        if (container) {
-            container.classList.remove("hidden");
-        }
-
-
-        if (!tableBody) {
-
-            console.error(
-                "scheduleTableBody tidak ditemukan."
-            );
-
-            return;
-        }
-
-
-        /* ==============================
-           ISI TABLE
-        ============================== */
-
-        tableBody.innerHTML = "";
-
-
-        schedules.forEach(
-            (item, index) => {
-
-                const row =
-                    document.createElement("tr");
-
-
-                const className =
-                    item.classes?.name || "-";
-
-
-                const subjectName =
-                    item.subjects?.name || "-";
-
-
-                row.innerHTML = `
-
-                    <td>
-                        ${index + 1}
-                    </td>
-
-                    <td>
-                        ${formatDashboardDate(item.date)}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(className)}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(subjectName)}
-                    </td>
-
-                    <td>
-                        Sumatif ${item.sumatif_number}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(item.material)}
-                    </td>
-
-                    <td>
-                        ${formatAssessmentType(
-                            item.assessment_type
-                        )}
-                    </td>
-
-                    <td>
-                        ${formatStatus(item.status)}
-                    </td>
-
-                    <td>
-
-                        <button
-                            class="btn-action"
-                            onclick="viewSchedule('${item.id}')"
-                        >
-                            Lihat
-                        </button>
-
-                    </td>
-
-                `;
-
-
-                tableBody.appendChild(row);
 
             }
         );
+
+
+
+
+
+        // =================================
+        // UPDATE CARD
+        // =================================
+
+
+        setDashboardValue(
+            "totalSchedule",
+            total
+        );
+
+
+        setDashboardValue(
+            "monthlySchedule",
+            monthly
+        );
+
+
+        setDashboardValue(
+            "writtenSchedule",
+            written
+        );
+
+
+        setDashboardValue(
+            "practicalSchedule",
+            practical
+        );
+
+
+
+
+
+
+        // =================================
+        // OPTIONAL LIST
+        // =================================
+
+        renderLatestSchedules(
+            schedules
+        );
+
 
 
         console.log(
-            "TABLE DASHBOARD BERHASIL DITAMPILKAN"
+            "DASHBOARD BERHASIL DIMUAT"
         );
 
 
-    } catch (error) {
+
+    }
+    catch(error){
+
 
         console.error(
             "GAGAL MEMUAT DASHBOARD:",
@@ -337,139 +323,275 @@ async function loadDashboard() {
         );
 
 
-        if (loading) {
-            loading.classList.add("hidden");
-        }
-
-
-        if (container) {
-            container.classList.add("hidden");
-        }
-
-
-        if (empty) {
-
-            empty.classList.remove("hidden");
-
-            empty.innerHTML = `
-                <h3>Gagal memuat jadwal</h3>
-                <p>
-                    ${escapeHtml(error.message)}
-                </p>
-            `;
-
-        }
-
     }
+
 
 }
 
 
-/* =========================================
-   FORMAT TANGGAL
-========================================= */
 
-function formatDashboardDate(dateString) {
 
-    if (!dateString) {
-        return "-";
-    }
 
-    const date =
-        new Date(
-            dateString + "T00:00:00"
+
+
+// ==========================================
+// SET CARD VALUE
+// ==========================================
+
+function setDashboardValue(
+    id,
+    value
+){
+
+
+    const element =
+        document.getElementById(
+            id
         );
 
-    return date.toLocaleDateString(
-        "id-ID",
-        {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-        }
-    );
+
+
+    if(element){
+
+        element.textContent =
+            value;
+
+    }
+
 
 }
 
 
-/* =========================================
-   FORMAT ASSESSMENT
-========================================= */
 
-function formatAssessmentType(type) {
 
-    if (type === "written") {
-        return "Tertulis";
+
+
+// ==========================================
+// OPTIONAL LIST JADWAL TERBARU
+// ==========================================
+
+function renderLatestSchedules(
+    schedules
+){
+
+
+    const container =
+        document.getElementById(
+            "latestScheduleContainer"
+        );
+
+
+
+    /*
+       Jika HTML belum mempunyai
+       container daftar jadwal,
+       abaikan.
+    */
+
+
+    if(!container){
+
+        console.log(
+            "latestScheduleContainer belum tersedia."
+        );
+
+        return;
+
     }
 
-    if (type === "practical") {
-        return "Praktik";
+
+
+
+    if(
+        schedules.length === 0
+    ){
+
+        container.innerHTML =
+        `
+        <p>
+            Belum ada jadwal sumatif.
+        </p>
+        `;
+
+
+        return;
+
     }
+
+
+
+
+
+    const latest =
+        schedules.slice(
+            0,
+            5
+        );
+
+
+
+
+    container.innerHTML =
+        latest.map(
+            item =>
+
+
+            `
+
+            <div class="schedule-item">
+
+                <strong>
+
+                    ${escapeHtml(
+                        item.subjects?.name
+                        ||
+                        "-"
+                    )}
+
+                </strong>
+
+
+                <p>
+
+                    Sumatif
+                    ${item.sumatif_number}
+
+                    -
+
+                    ${formatAssessmentType(
+                        item.assessment_type
+                    )}
+
+                </p>
+
+
+                <small>
+
+                    ${formatDate(
+                        item.date
+                    )}
+
+                </small>
+
+
+            </div>
+
+            `
+
+        )
+        .join("");
+
+
+
+}
+
+
+
+
+
+// ==========================================
+// FORMAT
+// ==========================================
+
+function formatAssessmentType(
+    type
+){
+
+
+    if(
+        type === "written"
+    ){
+
+        return "Tes Tertulis";
+
+    }
+
+
+
+    if(
+        type === "practical"
+    ){
+
+        return "Tes Praktik";
+
+    }
+
+
 
     return type || "-";
 
-}
-
-
-/* =========================================
-   FORMAT STATUS
-========================================= */
-
-function formatStatus(status) {
-
-    if (status === "scheduled") {
-        return "Terjadwal";
-    }
-
-    if (status === "completed") {
-        return "Selesai";
-    }
-
-    if (status === "cancelled") {
-        return "Dibatalkan";
-    }
-
-    return status || "-";
 
 }
 
 
-/* =========================================
-   ESCAPE HTML
-========================================= */
 
-function escapeHtml(value) {
 
-    if (
-        value === null ||
-        value === undefined
-    ) {
-        return "";
+
+
+function formatDate(
+    date
+){
+
+
+    if(!date){
+
+        return "-";
+
     }
 
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
 
 
-/* =========================================
-   VIEW SCHEDULE
-========================================= */
+    return new Date(
+        date + "T00:00:00"
+    )
+    .toLocaleDateString(
+        "id-ID",
+        {
 
-function viewSchedule(id) {
+            day:"2-digit",
 
-    console.log(
-        "VIEW SCHEDULE:",
-        id
+            month:"short",
+
+            year:"numeric"
+
+        }
     );
 
-    alert(
-        "Detail jadwal akan kita buat pada tahap berikutnya."
+
+}
+
+
+
+
+
+function escapeHtml(
+    value
+){
+
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
     );
+
 
 }
