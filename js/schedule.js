@@ -456,26 +456,20 @@ function initSchedule() {
 function bindScheduleContextEvents() {
 
 
-    const year =
-        document.getElementById(
-            "scheduleYearFilter"
-        );
+   const yearFilter =
+    document.getElementById(
+        "scheduleYearFilter"
+    );
 
+const classFilter =
+    document.getElementById(
+        "scheduleClassFilter"
+    );
 
-    const classSelect =
-        document.getElementById(
-            "scheduleClassFilter"
-        );
-
-
-    const semesterRaw = semesterFilter.value;
-
-const semester =
-    semesterRaw === "Ganjil"
-        ? 1
-        : semesterRaw === "Genap"
-            ? 2
-            : Number(semesterRaw);
+const semesterFilter =
+    document.getElementById(
+        "scheduleSemesterFilter"
+    );
 
 
 
@@ -867,9 +861,15 @@ async function handleScheduleContextChange() {
         classFilter.value;
 
 
-    const semester =
-        semesterFilter.value;
+    const semesterRaw =
+    semesterFilter.value;
 
+const semester =
+    semesterRaw === "Ganjil"
+        ? 1
+        : semesterRaw === "Genap"
+            ? 2
+            : Number(semesterRaw);
 
 
     /* =========================
