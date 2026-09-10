@@ -303,7 +303,286 @@
                 </section>
 
             </main>
+<!-- =========================
+     MODAL TAMBAH JADWAL
+========================== -->
 
+<div id="scheduleModal" class="modal hidden">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <div>
+                <h2>Tambah Jadwal Sumatif</h2>
+                <p>Buat jadwal sumatif baru.</p>
+            </div>
+
+            <button
+                type="button"
+                id="closeScheduleModal"
+                class="modal-close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="scheduleForm">
+
+            <div class="form-grid">
+
+                <!-- TAHUN AJARAN -->
+
+                <div class="form-group">
+
+                    <label for="academicYear">
+                        Tahun Ajaran
+                    </label>
+
+                    <select
+                        id="academicYear"
+                        required
+                    >
+                        <option value="">
+                            Memuat tahun ajaran...
+                        </option>
+                    </select>
+
+                </div>
+
+
+                <!-- KELAS -->
+
+                <div class="form-group">
+
+                    <label for="classId">
+                        Kelas
+                    </label>
+
+                    <select
+                        id="classId"
+                        required
+                    >
+                        <option value="">
+                            Memuat kelas...
+                        </option>
+                    </select>
+
+                </div>
+
+
+                <!-- MAPEL -->
+
+                <div class="form-group">
+
+                    <label for="subjectId">
+                        Mata Pelajaran
+                    </label>
+
+                    <select
+                        id="subjectId"
+                        required
+                    >
+                        <option value="">
+                            Memuat mata pelajaran...
+                        </option>
+                    </select>
+
+                </div>
+
+
+                <!-- SUMATIF -->
+
+                <div class="form-group">
+
+                    <label for="sumatifNumber">
+                        Sumatif ke-
+                    </label>
+
+                    <input
+                        type="number"
+                        id="sumatifNumber"
+                        min="1"
+                        max="20"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- TANGGAL -->
+
+                <div class="form-group">
+
+                    <label for="scheduleDate">
+                        Tanggal
+                    </label>
+
+                    <input
+                        type="date"
+                        id="scheduleDate"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- JAM MULAI -->
+
+                <div class="form-group">
+
+                    <label for="startTime">
+                        Jam Mulai
+                    </label>
+
+                    <input
+                        type="time"
+                        id="startTime"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- JAM SELESAI -->
+
+                <div class="form-group">
+
+                    <label for="endTime">
+                        Jam Selesai
+                    </label>
+
+                    <input
+                        type="time"
+                        id="endTime"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- JENIS -->
+
+                <div class="form-group">
+
+                    <label for="assessmentType">
+                        Jenis Penilaian
+                    </label>
+
+                    <select
+                        id="assessmentType"
+                        required
+                    >
+
+                        <option value="">
+                            Pilih jenis
+                        </option>
+
+                        <option value="written">
+                            Tertulis
+                        </option>
+
+                        <option value="practical">
+                            Praktik
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- MATERI -->
+
+                <div class="form-group form-full">
+
+                    <label for="material">
+                        Materi
+                    </label>
+
+                    <input
+                        type="text"
+                        id="material"
+                        placeholder="Contoh: Bilangan dan Faktor"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- RUANG -->
+
+                <div class="form-group">
+
+                    <label for="room">
+                        Ruang
+                    </label>
+
+                    <input
+                        type="text"
+                        id="room"
+                        placeholder="Contoh: Kelas 5A"
+                    >
+
+                </div>
+
+
+                <!-- CATATAN -->
+
+                <div class="form-group form-full">
+
+                    <label for="notes">
+                        Catatan
+                    </label>
+
+                    <textarea
+                        id="notes"
+                        rows="3"
+                        placeholder="Catatan tambahan (opsional)"
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- MESSAGE -->
+
+            <div
+                id="scheduleFormMessage"
+                class="form-message"
+            ></div>
+
+
+            <!-- BUTTON -->
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    id="cancelScheduleBtn"
+                    class="btn-secondary"
+                >
+                    Batal
+                </button>
+
+                <button
+                    type="submit"
+                    id="saveScheduleBtn"
+                    class="btn-primary"
+                >
+                    Simpan Jadwal
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+            
         </section>
 
     </div>
