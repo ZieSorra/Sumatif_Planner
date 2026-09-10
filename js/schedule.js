@@ -469,14 +469,9 @@ const classSelect =
    const semesterRaw =
     semesterFilter.value;
 
-const semester =
-    semesterRaw === "Ganjil"
-        ? 1
-        : semesterRaw === "Genap"
-            ? 2
-            : Number(semesterRaw);
-
-
+    const semesterFilter =
+        document.getElementById(
+            "scheduleSemesterFilter"
 
     if (year) {
 
@@ -496,7 +491,7 @@ const semester =
 
     if (semesterFilter) {
 
-        semester.onchange =
+        semesterFilter.onchange =
             handleScheduleContextChange;
 
     }
@@ -864,6 +859,16 @@ async function handleScheduleContextChange() {
 
     const classId =
         classFilter.value;
+
+   const semesterRaw =
+    semesterFilter.value;
+
+const semester =
+    semesterRaw === "Ganjil"
+        ? 1
+        : semesterRaw === "Genap"
+            ? 2
+            : Number(semesterRaw);
 
 
  
