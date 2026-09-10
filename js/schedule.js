@@ -468,10 +468,14 @@ function bindScheduleContextEvents() {
         );
 
 
-    const semester =
-        document.getElementById(
-            "scheduleSemesterFilter"
-        );
+    const semesterRaw = semesterFilter.value;
+
+const semester =
+    semesterRaw === "Ganjil"
+        ? 1
+        : semesterRaw === "Genap"
+            ? 2
+            : Number(semesterRaw);
 
 
 
