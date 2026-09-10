@@ -455,50 +455,37 @@ function initSchedule() {
 
 function bindScheduleContextEvents() {
 
+    const year =
+        document.getElementById(
+            "scheduleYearFilter"
+        );
 
-   const year =
-    document.getElementById(
-        "scheduleYearFilter"
-    );
-
-const classSelect =
-    document.getElementById(
-        "scheduleClassFilter"
-    );
-
-   const semesterRaw =
-    semesterFilter.value;
+    const classSelect =
+        document.getElementById(
+            "scheduleClassFilter"
+        );
 
     const semesterFilter =
         document.getElementById(
             "scheduleSemesterFilter"
+        );
 
     if (year) {
-
         year.onchange =
             handleScheduleContextChange;
-
     }
-
 
     if (classSelect) {
-
         classSelect.onchange =
             handleScheduleContextChange;
-
     }
 
-
     if (semesterFilter) {
-
         semesterFilter.onchange =
             handleScheduleContextChange;
-
     }
 
 }
-
-
 
 /* =========================================================
    LOAD CONTEXT DATA
@@ -817,201 +804,124 @@ async function loadScheduleSubjects() {
 
 async function handleScheduleContextChange() {
 
-
     const yearFilter =
         document.getElementById(
             "scheduleYearFilter"
         );
-
 
     const classFilter =
         document.getElementById(
             "scheduleClassFilter"
         );
 
-
     const semesterFilter =
         document.getElementById(
             "scheduleSemesterFilter"
         );
 
-
-
     if (
-
         !yearFilter ||
-
         !classFilter ||
-
         !semesterFilter
-
     ) {
-
         return;
-
     }
-
-
 
     const academicYearId =
         yearFilter.value;
 
-
     const classId =
         classFilter.value;
 
-   const semesterRaw =
-    semesterFilter.value;
+    const semesterRaw =
+        semesterFilter.value;
 
-const semester =
-    semesterRaw === "Ganjil"
-        ? 1
-        : semesterRaw === "Genap"
-            ? 2
-            : Number(semesterRaw);
-
-
- 
-    /* =========================
-       CONTEXT BELUM LENGKAP
-    ========================== */
+    const semester =
+        semesterRaw === "Ganjil"
+            ? 1
+            : semesterRaw === "Genap"
+                ? 2
+                : Number(semesterRaw);
 
     if (
-
         !academicYearId ||
-
         !classId ||
-
         !semester
-
     ) {
 
-
         scheduleContext = {
-
-            academicYearId:"",
-
-            classId:"",
-
-            semester:"",
-
-            academicYearName:"",
-
-            className:""
-
+            academicYearId: "",
+            classId: "",
+            semester: "",
+            academicYearName: "",
+            className: ""
         };
 
-
         scheduleSchedules = [];
-
         scheduleCalendarDays = [];
-
 
         hideEducationCalendar();
 
-
         return;
-
     }
-
-
-
-    /* =========================
-       DATA YANG DIPILIH
-    ========================== */
 
     const selectedYear =
         scheduleAcademicYears.find(
-
             item =>
-
-                String(item.id)
-                ===
+                String(item.id) ===
                 String(academicYearId)
-
         );
-
-
 
     const selectedClass =
         scheduleClasses.find(
-
             item =>
-
-                String(item.id)
-                ===
+                String(item.id) ===
                 String(classId)
-
         );
-
-
-
-    /* =========================
-       SET CONTEXT
-    ========================== */
 
     scheduleContext = {
 
         academicYearId:
-
             academicYearId,
 
-
         classId:
-
             classId,
 
-
         semester:
-
-            Number(semester),
-
+            semester,
 
         academicYearName:
-
             selectedYear
                 ? selectedYear.name
                 : "",
 
-
         className:
-
             selectedClass
                 ? selectedClass.name
                 : ""
 
     };
 
-
-
     console.log(
         "[Schedule] Context:",
         scheduleContext
     );
 
-
-
     try {
-
 
         await loadScheduleData();
 
-
         renderEducationCalendar();
-
 
         renderScheduleList();
 
-
     }
     catch (error) {
-
 
         console.error(
             "[Schedule] Gagal memuat jadwal:",
             error
         );
-
 
         showScheduleError(
             error.message ||
@@ -1021,8 +931,6 @@ const semester =
     }
 
 }
-
-
 
 /* =========================================================
    LOAD SCHEDULE + EDUCATION CALENDAR
