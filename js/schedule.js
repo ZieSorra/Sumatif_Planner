@@ -456,12 +456,12 @@ function initSchedule() {
 function bindScheduleContextEvents() {
 
 
-   const yearFilter =
+   const year =
     document.getElementById(
         "scheduleYearFilter"
     );
 
-const classFilter =
+const classSelect =
     document.getElementById(
         "scheduleClassFilter"
     );
@@ -489,7 +489,7 @@ const semesterFilter =
     }
 
 
-    if (semester) {
+    if (semesterFilter) {
 
         semester.onchange =
             handleScheduleContextChange;
