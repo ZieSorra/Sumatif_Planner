@@ -1,109 +1,596 @@
-// ==========================================
-// SUMATIF PLANNER
-// schedule.js
-// BAGIAN 1
-// ==========================================
+/* =========================================================
+   SUMATIF PLANNER - schedule.js
+   Supabase version
+   =========================================================
+
+   FLOW:
+
+   Tahun Pelajaran
+        ↓
+   Kelas
+        ↓
+   Semester
+        ↓
+   Kalender Pendidikan
+        ↓
+   Klik tanggal
+        ↓
+   Validasi
+        ↓
+   Form Input
+        ↓
+   Simpan
+
+   DATABASE:
+
+   education_calendar
+   - id
+   - academic_year_id
+   - semester
+   - date
+   - day_type
+   - title
+   - description
+   - is_selectable
+   - created_at
+   - updated_at
+
+   sumatif_schedules
+   - id
+   - academic_year_id
+   - semester
+   - class_id
+   - subject_id
+   - teacher_id
+   - sumatif_number
+   - date
+   - start_time
+   - end_time
+   - material
+   - assessment_type
+   - room
+   - notes
+   - status
+   - created_at
+   - updated_at
+
+   ========================================================= */
 
 
-// ==========================================
-// STATE
-// ==========================================
+/* =========================================================
+   STATE
+   ========================================================= */
 
-let selectedAcademicYear = null;
-let selectedClass = null;
-let selectedSemester = null;
+let scheduleContext = {
 
-let educationCalendar = [];
+    academicYearId: "",
 
-let selectedDate = null;
+    classId: "",
 
+    semester: "",
 
-// ==========================================
-// ELEMENT
-// ==========================================
+    academicYearName: "",
 
-const scheduleModal =
-    document.getElementById("scheduleModal");
+    className: ""
 
-const addScheduleBtn =
-    document.getElementById("addScheduleBtn");
+};
 
 
-// ==========================================
-// INIT
-// ==========================================
+let scheduleAcademicYears = [];
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+let scheduleClasses = [];
 
-        initSchedule();
+let scheduleSubjects = [];
 
-    }
-);
+let scheduleSchedules = [];
+
+let scheduleCalendarDays = [];
 
 
-// ==========================================
-// INIT SCHEDULE
-// ==========================================
 
-async function initSchedule() {
+/* =========================================================
+   RENDER SCHEDULE PAGE
+   ========================================================= */
 
-    console.log(
-        "Schedule module aktif"
-    );
+function renderSchedulePage() {
 
 
-    if (addScheduleBtn) {
-
-        addScheduleBtn.addEventListener(
-            "click",
-            () => {
-
-                openScheduleModal();
-
-            }
+    const content =
+        document.getElementById(
+            "appContent"
         );
 
+
+    if (!content) {
+
+        console.error(
+            "[Schedule] appContent tidak ditemukan."
+        );
+
+        return;
+
     }
 
 
-    await loadAcademicYears();
 
-    await loadClasses();
+    content.innerHTML = `
 
-    await loadSubjects();
+        <div class="schedule-page">
+
+
+            <!-- =================================
+                 HEADER
+            ================================== -->
+
+            <div class="page-heading">
+
+                <div>
+
+                    <h2>
+                        Jadwal Sumatif
+                    </h2>
+
+                    <p>
+                        Pilih konteks pembelajaran
+                        untuk menampilkan kalender pendidikan.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================
+                 KONTEKS PEMBELAJARAN
+            ================================== -->
+
+            <section
+                class="schedule-context-card"
+            >
+
+                <div class="context-header">
+
+                    <div class="context-icon">
+                        ◫
+                    </div>
+
+
+                    <div>
+
+                        <h3>
+                            Konteks Pembelajaran
+                        </h3>
+
+                        <p>
+                            Tentukan tahun pelajaran,
+                            kelas, dan semester.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="context-fields">
+
+
+                    <!-- TAHUN PELAJARAN -->
+
+                    <div class="filter-group">
+
+                        <label
+                            for="scheduleYearFilter"
+                        >
+                            Tahun Pelajaran
+                        </label>
+
+
+                        <select
+                            id="scheduleYearFilter"
+                        >
+
+                            <option value="">
+                                Pilih Tahun Pelajaran
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- KELAS -->
+
+                    <div class="filter-group">
+
+                        <label
+                            for="scheduleClassFilter"
+                        >
+                            Kelas
+                        </label>
+
+
+                        <select
+                            id="scheduleClassFilter"
+                        >
+
+                            <option value="">
+                                Pilih Kelas
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- SEMESTER -->
+
+                    <div class="filter-group">
+
+                        <label
+                            for="scheduleSemesterFilter"
+                        >
+                            Semester
+                        </label>
+
+
+                        <select
+                            id="scheduleSemesterFilter"
+                        >
+
+                            <option value="">
+                                Pilih Semester
+                            </option>
+
+
+                            <option value="1">
+                                Ganjil
+                            </option>
+
+
+                            <option value="2">
+                                Genap
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================
+                 EMPTY STATE
+            ================================== -->
+
+            <section
+                id="calendarEmpty"
+                class="schedule-empty"
+            >
+
+                <div class="empty-calendar-icon">
+                    ▦
+                </div>
+
+
+                <h3>
+                    Pilih konteks pembelajaran
+                </h3>
+
+
+                <p>
+                    Kalender pendidikan akan muncul
+                    setelah Tahun Pelajaran, Kelas,
+                    dan Semester dipilih.
+                </p>
+
+            </section>
+
+
+
+            <!-- =================================
+                 EDUCATION CALENDAR
+            ================================== -->
+
+            <section
+                id="educationCalendarSection"
+                class="calendar-section hidden"
+            >
+
+                <div class="calendar-header">
+
+
+                    <div>
+
+                        <h3>
+                            Kalender Pendidikan
+                        </h3>
+
+
+                        <p
+                            id="calendarContext"
+                        ></p>
+
+                    </div>
+
+
+
+                    <div
+                        class="calendar-legend"
+                    >
+
+                        <span>
+
+                            <i
+                                class="legend available"
+                            ></i>
+
+                            Tersedia
+
+                        </span>
+
+
+                        <span>
+
+                            <i
+                                class="legend schedule"
+                            ></i>
+
+                            Sumatif
+
+                        </span>
+
+
+                        <span>
+
+                            <i
+                                class="legend blocked"
+                            ></i>
+
+                            Tidak tersedia
+
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div
+                    id="calendarGrid"
+                    class="calendar-grid"
+                ></div>
+
+
+            </section>
+
+
+
+            <!-- =================================
+                 SCHEDULE LIST
+            ================================== -->
+
+            <section
+                id="scheduleListSection"
+                class="schedule-list-section hidden"
+            >
+
+                <div
+                    class="schedule-list-header"
+                >
+
+                    <div>
+
+                        <h3>
+                            Jadwal Sumatif
+                        </h3>
+
+                        <p>
+                            Jadwal pada konteks
+                            yang dipilih.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="scheduleList"
+                    class="schedule-list"
+                ></div>
+
+
+            </section>
+
+
+        </div>
+
+    `;
+
+
+
+    bindScheduleContextEvents();
+
+
+    loadScheduleContextData();
 
 }
 
 
-// ==========================================
-// LOAD TAHUN AJARAN
-// ==========================================
 
-async function loadAcademicYears() {
+/* =========================================================
+   INITIALIZATION
+   ========================================================= */
+
+function initSchedule() {
+
+
+    console.log(
+        "[Schedule] Initializing..."
+    );
+
+
+    bindScheduleContextEvents();
+
+
+    loadScheduleContextData();
+
+}
+
+
+
+/* =========================================================
+   BIND CONTEXT
+   ========================================================= */
+
+function bindScheduleContextEvents() {
+
+
+    const year =
+        document.getElementById(
+            "scheduleYearFilter"
+        );
+
+
+    const classSelect =
+        document.getElementById(
+            "scheduleClassFilter"
+        );
+
+
+    const semester =
+        document.getElementById(
+            "scheduleSemesterFilter"
+        );
+
+
+
+    if (year) {
+
+        year.onchange =
+            handleScheduleContextChange;
+
+    }
+
+
+    if (classSelect) {
+
+        classSelect.onchange =
+            handleScheduleContextChange;
+
+    }
+
+
+    if (semester) {
+
+        semester.onchange =
+            handleScheduleContextChange;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   LOAD CONTEXT DATA
+   ========================================================= */
+
+async function loadScheduleContextData() {
+
+
+    try {
+
+
+        await Promise.all([
+
+            loadScheduleAcademicYears(),
+
+            loadScheduleClasses(),
+
+            loadScheduleSubjects()
+
+        ]);
+
+
+        console.log(
+            "[Schedule] Context data loaded."
+        );
+
+
+    }
+    catch (error) {
+
+
+        console.error(
+            "[Schedule] Gagal memuat context:",
+            error
+        );
+
+
+        showScheduleError(
+            error.message ||
+            "Gagal memuat data."
+        );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   LOAD TAHUN PELAJARAN
+   ========================================================= */
+
+async function loadScheduleAcademicYears() {
 
 
     const select =
         document.getElementById(
-            "academicYearSelect"
+            "scheduleYearFilter"
         );
 
 
     if (!select) {
+
+        console.warn(
+            "[Schedule] scheduleYearFilter tidak ditemukan."
+        );
+
         return;
+
     }
 
 
+
     const {
+
         data,
+
         error
+
     } =
     await supabaseClient
-        .from("academic_years")
+
+        .from(
+            "academic_years"
+        )
+
         .select(
             "id,name"
         )
+
         .order(
             "name",
             {
@@ -112,279 +599,255 @@ async function loadAcademicYears() {
         );
 
 
+
     if (error) {
 
-        console.error(
-            "Gagal mengambil tahun ajaran",
-            error
-        );
-
-        return;
+        throw error;
 
     }
 
 
-    select.innerHTML =
-        `
+
+    scheduleAcademicYears =
+        data || [];
+
+
+
+    select.innerHTML = `
+
         <option value="">
             Pilih Tahun Pelajaran
         </option>
-        `;
+
+    `;
 
 
-    data.forEach(
+
+    scheduleAcademicYears.forEach(
         item => {
 
-            select.innerHTML +=
-            `
-            <option value="${item.id}">
-                ${item.name}
-            </option>
-            `;
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                item.id;
+
+
+            option.textContent =
+                item.name;
+
+
+            select.appendChild(
+                option
+            );
+
 
         }
     );
-
-
-    select.addEventListener(
-        "change",
-        async function(){
-
-            selectedAcademicYear =
-                this.value;
-
-
-            selectedSemester =
-                null;
-
-
-            await loadSemester();
-
-        }
-    );
-
 
 }
 
 
-// ==========================================
-// LOAD KELAS
-// ==========================================
 
-async function loadClasses() {
+/* =========================================================
+   LOAD KELAS
+   ========================================================= */
+
+async function loadScheduleClasses() {
 
 
     const select =
         document.getElementById(
-            "classSelect"
+            "scheduleClassFilter"
         );
 
 
     if (!select) {
+
+        console.warn(
+            "[Schedule] scheduleClassFilter tidak ditemukan."
+        );
+
         return;
+
     }
 
 
+
     const {
+
         data,
+
         error
+
     } =
     await supabaseClient
-        .from("classes")
+
+        .from(
+            "classes"
+        )
+
         .select(
             "id,name,level"
         )
+
         .order(
-            "level"
+            "level",
+            {
+                ascending:true
+            }
         )
+
         .order(
-            "name"
+            "name",
+            {
+                ascending:true
+            }
         );
+
 
 
     if (error) {
 
-        console.error(
-            "Gagal mengambil kelas",
-            error
-        );
-
-        return;
+        throw error;
 
     }
 
 
-    select.innerHTML =
-    `
-    <option value="">
-        Pilih Kelas
-    </option>
+
+    scheduleClasses =
+        data || [];
+
+
+
+    select.innerHTML = `
+
+        <option value="">
+            Pilih Kelas
+        </option>
+
     `;
 
 
-    data.forEach(
+
+    scheduleClasses.forEach(
         item => {
 
-            select.innerHTML +=
-            `
-            <option value="${item.id}">
-                ${item.name}
-            </option>
-            `;
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                item.id;
+
+
+            option.textContent =
+                item.name;
+
+
+            select.appendChild(
+                option
+            );
+
 
         }
     );
-
-
-    select.addEventListener(
-        "change",
-        function(){
-
-            selectedClass =
-                this.value;
-
-
-            loadEducationCalendar();
-
-        }
-    );
-
 
 }
 
 
-// ==========================================
-// LOAD SEMESTER
-// ==========================================
 
-async function loadSemester() {
+/* =========================================================
+   LOAD MATA PELAJARAN
+   ========================================================= */
 
-
-    const select =
-        document.getElementById(
-            "semesterSelect"
-        );
-
-
-    if (!select) {
-        return;
-    }
-
-
-    select.innerHTML =
-    `
-    <option value="">
-        Pilih Semester
-    </option>
-
-    <option value="1">
-        Ganjil
-    </option>
-
-    <option value="2">
-        Genap
-    </option>
-    `;
-
-
-    select.addEventListener(
-        "change",
-        function(){
-
-            selectedSemester =
-                this.value;
-
-
-            loadEducationCalendar();
-
-        }
-    );
-
-
-}
-
-
-// ==========================================
-// LOAD SUBJECT
-// ==========================================
-
-async function loadSubjects() {
-
-
-    const select =
-        document.getElementById(
-            "subjectSelect"
-        );
-
-
-    if (!select) {
-        return;
-    }
+async function loadScheduleSubjects() {
 
 
     const {
+
         data,
+
         error
+
     } =
     await supabaseClient
-        .from("subjects")
+
+        .from(
+            "subjects"
+        )
+
         .select(
             "id,name,short_name"
         )
+
         .order(
-            "name"
+            "name",
+            {
+                ascending:true
+            }
         );
 
 
-    if(error){
 
-        console.error(
-            "Gagal mengambil mapel",
-            error
-        );
+    if (error) {
 
-        return;
+        throw error;
 
     }
 
 
-    select.innerHTML =
-    `
-    <option value="">
-        Pilih Mata Pelajaran
-    </option>
-    `;
 
+    scheduleSubjects =
+        data || [];
 
-    data.forEach(
-        item => {
-
-            select.innerHTML +=
-            `
-            <option value="${item.id}">
-                ${item.name}
-            </option>
-            `;
-
-        }
-    );
 
 }
-// ==========================================
-// LOAD EDUCATION CALENDAR
-// ==========================================
 
-async function loadEducationCalendar() {
+
+
+/* =========================================================
+   HANDLE CONTEXT CHANGE
+   ========================================================= */
+
+async function handleScheduleContextChange() {
+
+
+    const yearFilter =
+        document.getElementById(
+            "scheduleYearFilter"
+        );
+
+
+    const classFilter =
+        document.getElementById(
+            "scheduleClassFilter"
+        );
+
+
+    const semesterFilter =
+        document.getElementById(
+            "scheduleSemesterFilter"
+        );
+
 
 
     if (
-        !selectedAcademicYear ||
-        !selectedSemester
-    ) {
 
-        console.log(
-            "Tahun ajaran atau semester belum dipilih"
-        );
+        !yearFilter ||
+
+        !classFilter ||
+
+        !semesterFilter
+
+    ) {
 
         return;
 
@@ -392,30 +855,315 @@ async function loadEducationCalendar() {
 
 
 
+    const academicYearId =
+        yearFilter.value;
+
+
+    const classId =
+        classFilter.value;
+
+
+    const semester =
+        semesterFilter.value;
+
+
+
+    /* =========================
+       CONTEXT BELUM LENGKAP
+    ========================== */
+
+    if (
+
+        !academicYearId ||
+
+        !classId ||
+
+        !semester
+
+    ) {
+
+
+        scheduleContext = {
+
+            academicYearId:"",
+
+            classId:"",
+
+            semester:"",
+
+            academicYearName:"",
+
+            className:""
+
+        };
+
+
+        scheduleSchedules = [];
+
+        scheduleCalendarDays = [];
+
+
+        hideEducationCalendar();
+
+
+        return;
+
+    }
+
+
+
+    /* =========================
+       DATA YANG DIPILIH
+    ========================== */
+
+    const selectedYear =
+        scheduleAcademicYears.find(
+
+            item =>
+
+                String(item.id)
+                ===
+                String(academicYearId)
+
+        );
+
+
+
+    const selectedClass =
+        scheduleClasses.find(
+
+            item =>
+
+                String(item.id)
+                ===
+                String(classId)
+
+        );
+
+
+
+    /* =========================
+       SET CONTEXT
+    ========================== */
+
+    scheduleContext = {
+
+        academicYearId:
+
+            academicYearId,
+
+
+        classId:
+
+            classId,
+
+
+        semester:
+
+            Number(semester),
+
+
+        academicYearName:
+
+            selectedYear
+                ? selectedYear.name
+                : "",
+
+
+        className:
+
+            selectedClass
+                ? selectedClass.name
+                : ""
+
+    };
+
+
+
+    console.log(
+        "[Schedule] Context:",
+        scheduleContext
+    );
+
+
+
+    try {
+
+
+        await loadScheduleData();
+
+
+        renderEducationCalendar();
+
+
+        renderScheduleList();
+
+
+    }
+    catch (error) {
+
+
+        console.error(
+            "[Schedule] Gagal memuat jadwal:",
+            error
+        );
+
+
+        showScheduleError(
+            error.message ||
+            "Gagal memuat jadwal."
+        );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   LOAD SCHEDULE + EDUCATION CALENDAR
+   ========================================================= */
+
+async function loadScheduleData() {
+
+
+    if (
+
+        !scheduleContext.academicYearId ||
+
+        !scheduleContext.classId ||
+
+        !scheduleContext.semester
+
+    ) {
+
+        return;
+
+    }
+
+
+
+    /* =========================
+       SUMATIF
+    ========================== */
+
     const {
-        data,
-        error
+
+        data: schedules,
+
+        error: scheduleError
+
     } =
+
     await supabaseClient
-        .from("education_calendar")
-        .select(
-            `
-            id,
-            date,
-            day_type,
-            title,
-            description,
-            is_selectable
-            `
+
+        .from(
+            "sumatif_schedules"
         )
+
+        .select("*")
+
         .eq(
             "academic_year_id",
-            selectedAcademicYear
+            scheduleContext.academicYearId
         )
+
+        .eq(
+            "class_id",
+            scheduleContext.classId
+        )
+
         .eq(
             "semester",
-            selectedSemester
+            Number(
+                scheduleContext.semester
+            )
         )
+
+        .neq(
+            "status",
+            "cancelled"
+        )
+
+        .order(
+            "date",
+            {
+                ascending:true
+            }
+        )
+
+        .order(
+            "start_time",
+            {
+                ascending:true
+            }
+        );
+
+
+
+    if (scheduleError) {
+
+        throw scheduleError;
+
+    }
+
+
+
+    scheduleSchedules =
+        schedules || [];
+
+
+
+    /* =========================
+       EDUCATION CALENDAR
+    ========================== */
+
+    const {
+
+        data: calendarDays,
+
+        error: calendarError
+
+    } =
+
+    await supabaseClient
+
+        .from(
+            "education_calendar"
+        )
+
+        .select(`
+
+            id,
+
+            academic_year_id,
+
+            semester,
+
+            date,
+
+            day_type,
+
+            title,
+
+            description,
+
+            is_selectable
+
+        `)
+
+        .eq(
+            "academic_year_id",
+            scheduleContext.academicYearId
+        )
+
+        .eq(
+            "semester",
+            Number(
+                scheduleContext.semester
+            )
+        )
+
         .order(
             "date",
             {
@@ -425,72 +1173,133 @@ async function loadEducationCalendar() {
 
 
 
-    if(error){
+    if (calendarError) {
 
-        console.error(
-            "Gagal mengambil kalender pendidikan:",
-            error
-        );
-
-        return;
+        throw calendarError;
 
     }
 
 
 
-    educationCalendar =
-        data || [];
+    scheduleCalendarDays =
+        calendarDays || [];
 
 
 
     console.log(
-        "EDUCATION CALENDAR:",
-        educationCalendar
+        "[Schedule] Schedules:",
+        scheduleSchedules
     );
 
 
-
-    renderCalendar();
+    console.log(
+        "[Schedule] Education Calendar:",
+        scheduleCalendarDays
+    );
 
 }
 
 
 
-// ==========================================
-// FILTER TANGGAL YANG BISA DIPILIH
-// ==========================================
+/* =========================================================
+   HIDE CALENDAR
+   ========================================================= */
 
-function getSelectableDates(){
-
-
-    return educationCalendar.filter(
-        item =>
-            item.is_selectable === true
-    );
+function hideEducationCalendar() {
 
 
-}
-
-
-
-// ==========================================
-// RENDER CALENDAR
-// ==========================================
-
-function renderCalendar(){
-
-
-    const container =
+    const section =
         document.getElementById(
-            "calendarContainer"
+            "educationCalendarSection"
         );
 
 
-    if(!container){
-
-        console.log(
-            "calendarContainer belum ada"
+    const empty =
+        document.getElementById(
+            "calendarEmpty"
         );
+
+
+    const listSection =
+        document.getElementById(
+            "scheduleListSection"
+        );
+
+
+
+    if (section) {
+
+        section.classList.add(
+            "hidden"
+        );
+
+    }
+
+
+
+    if (empty) {
+
+        empty.classList.remove(
+            "hidden"
+        );
+
+    }
+
+
+
+    if (listSection) {
+
+        listSection.classList.add(
+            "hidden"
+        );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   RENDER EDUCATION CALENDAR
+   ========================================================= */
+
+function renderEducationCalendar() {
+
+
+    const section =
+        document.getElementById(
+            "educationCalendarSection"
+        );
+
+
+    const empty =
+        document.getElementById(
+            "calendarEmpty"
+        );
+
+
+    const grid =
+        document.getElementById(
+            "calendarGrid"
+        );
+
+
+    const context =
+        document.getElementById(
+            "calendarContext"
+        );
+
+
+
+    if (
+
+        !section ||
+
+        !empty ||
+
+        !grid
+
+    ) {
 
         return;
 
@@ -498,20 +1307,47 @@ function renderCalendar(){
 
 
 
-    const dates =
-        getSelectableDates();
+    section.classList.remove(
+        "hidden"
+    );
+
+
+    empty.classList.add(
+        "hidden"
+    );
 
 
 
-    if(
-        dates.length === 0
-    ){
+    if (context) {
 
-        container.innerHTML =
-        `
-        <p>
-        Belum ada tanggal yang tersedia.
-        </p>
+        context.textContent =
+
+            `${scheduleContext.academicYearName} · ` +
+
+            `${scheduleContext.className} · ` +
+
+            `Semester ${getSemesterLabel(
+                scheduleContext.semester
+            )}`;
+
+    }
+
+
+
+    if (
+        !scheduleCalendarDays.length
+    ) {
+
+
+        grid.innerHTML = `
+
+            <div class="schedule-list-empty">
+
+                Kalender pendidikan
+                belum tersedia untuk konteks ini.
+
+            </div>
+
         `;
 
 
@@ -521,173 +1357,554 @@ function renderCalendar(){
 
 
 
-    container.innerHTML =
-    "";
+    const monthKeys =
+        getCalendarMonthKeys();
 
 
 
-    dates.forEach(
+    grid.innerHTML =
+
+        monthKeys
+
+            .map(
+                monthKey =>
+                    renderMonthCalendar(
+                        monthKey
+                    )
+            )
+
+            .join("");
+
+}
+
+
+
+/* =========================================================
+   GET MONTH KEYS
+   ========================================================= */
+
+function getCalendarMonthKeys() {
+
+
+    const keys =
+        new Set();
+
+
+
+    scheduleCalendarDays.forEach(
         item => {
 
 
-            const button =
-                document.createElement(
-                    "button"
+            const date =
+                String(
+                    item.date || ""
+                )
+                .slice(
+                    0,
+                    10
                 );
 
 
+            if (
+                date.length >= 7
+            ) {
 
-            button.className =
-                "calendar-date";
+                keys.add(
+                    date.slice(
+                        0,
+                        7
+                    )
+                );
 
+            }
 
-
-            button.innerHTML =
-            `
-            <strong>
-                ${formatDate(item.date)}
-            </strong>
-            <br>
-            <small>
-                ${item.title || ""}
-            </small>
-            `;
-
+        }
+    );
 
 
-            button.addEventListener(
-                "click",
-                ()=>{
+
+    scheduleSchedules.forEach(
+        item => {
 
 
-                    selectDate(
-                        item.date
-                    );
+            const date =
+                String(
+                    item.date || ""
+                )
+                .slice(
+                    0,
+                    10
+                );
 
+
+            if (
+                date.length >= 7
+            ) {
+
+                keys.add(
+                    date.slice(
+                        0,
+                        7
+                    )
+                );
+
+            }
+
+        }
+    );
+
+
+
+    return [
+
+        ...keys
+
+    ]
+    .sort();
+
+}
+
+
+
+/* =========================================================
+   RENDER MONTH
+   ========================================================= */
+
+function renderMonthCalendar(
+    monthKey
+) {
+
+
+    const [
+
+        year,
+
+        monthNumber
+
+    ] =
+        monthKey
+            .split("-")
+            .map(Number);
+
+
+
+    const monthIndex =
+        monthNumber - 1;
+
+
+
+    const monthName =
+
+        new Date(
+            year,
+            monthIndex,
+            1
+        )
+        .toLocaleDateString(
+            "id-ID",
+            {
+                month:"long",
+                year:"numeric"
+            }
+        );
+
+
+
+    const firstDay =
+
+        new Date(
+            year,
+            monthIndex,
+            1
+        )
+        .getDay();
+
+
+
+    const daysInMonth =
+
+        new Date(
+            year,
+            monthIndex + 1,
+            0
+        )
+        .getDate();
+
+
+
+    const weekdays = [
+
+        "Min",
+
+        "Sen",
+
+        "Sel",
+
+        "Rab",
+
+        "Kam",
+
+        "Jum",
+
+        "Sab"
+
+    ];
+
+
+
+    let html = `
+
+        <div class="month-card">
+
+            <div class="month-title">
+
+                ${escapeHtml(
+                    monthName
+                )}
+
+            </div>
+
+
+            <div class="calendar-weekdays">
+
+                ${
+
+                    weekdays
+
+                        .map(
+                            day =>
+                                `<div>${day}</div>`
+                        )
+
+                        .join("")
 
                 }
-            );
+
+            </div>
+
+
+            <div class="calendar-days">
+
+    `;
 
 
 
-            container.appendChild(
-                button
-            );
+    for (
+        let i = 0;
+        i < firstDay;
+        i++
+    ) {
 
 
-        }
-    );
+        html += `
 
+            <div
+                class="calendar-empty-day"
+            ></div>
 
-}
-
-
-
-// ==========================================
-// SELECT DATE
-// ==========================================
-
-function selectDate(date){
-
-
-    selectedDate =
-        date;
-
-
-
-    console.log(
-        "Tanggal dipilih:",
-        selectedDate
-    );
-
-
-
-    const input =
-        document.getElementById(
-            "scheduleDate"
-        );
-
-
-
-    if(input){
-
-        input.value =
-            selectedDate;
+        `;
 
     }
 
 
 
-    document
-        .querySelectorAll(
-            ".calendar-date"
-        )
-        .forEach(
-            btn =>
-            btn.classList.remove(
-                "active"
+    for (
+        let day = 1;
+        day <= daysInMonth;
+        day++
+    ) {
+
+
+        const dateString =
+
+            `${year}-` +
+
+            `${String(
+                monthIndex + 1
+            ).padStart(2,"0")}-` +
+
+            `${String(
+                day
+            ).padStart(2,"0")}`;
+
+
+
+        html +=
+
+            renderCalendarDay(
+                dateString,
+                day
+            );
+
+    }
+
+
+
+    html += `
+
+            </div>
+
+        </div>
+
+    `;
+
+
+
+    return html;
+
+}
+
+
+
+/* =========================================================
+   RENDER CALENDAR DAY
+   ========================================================= */
+
+function renderCalendarDay(
+    dateString,
+    day
+) {
+
+
+    const calendarDay =
+        getCalendarDay(
+            dateString
+        );
+
+
+    const schedules =
+        getSchedulesForDate(
+            dateString
+        );
+
+
+
+    const exists =
+        Boolean(
+            calendarDay
+        );
+
+
+
+    const selectable =
+
+        exists &&
+
+        calendarDay.is_selectable
+        ===
+        true;
+
+
+
+    const blocked =
+        !selectable;
+
+
+
+    let dateClass =
+        "calendar-day ";
+
+
+
+    if (blocked) {
+
+        dateClass +=
+            "blocked";
+
+    }
+    else if (
+        schedules.length
+    ) {
+
+        dateClass +=
+            "has-schedule";
+
+    }
+    else {
+
+        dateClass +=
+            "available";
+
+    }
+
+
+
+    const title =
+
+        calendarDay?.title
+
+        ||
+
+        (
+            exists
+
+                ? "Tanggal tidak tersedia"
+
+                : "Belum ada data kalender pendidikan"
+        );
+
+
+
+    const scheduleHtml =
+
+        schedules
+
+            .map(
+                schedule => `
+
+                    <div
+                        class="calendar-schedule"
+                        title="${escapeHtml(
+                            schedule.material || ""
+                        )}"
+                    >
+
+                        ${escapeHtml(
+                            getSubjectName(
+                                schedule.subject_id
+                            )
+                        )}
+
+                    </div>
+
+                `
             )
-        );
+
+            .join("");
 
 
 
-    event
-        ?.target
-        ?.closest(
-            ".calendar-date"
-        )
-        ?.classList.add(
-            "active"
-        );
+    const eventHtml =
+
+        blocked && calendarDay
+
+            ? `
+
+                <div
+                    class="calendar-event"
+                >
+
+                    ${escapeHtml(
+                        calendarDay.title
+                        ||
+                        "Tidak tersedia"
+                    )}
+
+                </div>
+
+            `
+
+            : "";
+
+
+
+    return `
+
+        <button
+
+            type="button"
+
+            class="${dateClass}"
+
+            data-calendar-date="${dateString}"
+
+            title="${escapeHtml(
+                title
+            )}"
+
+        >
+
+            <div
+                class="calendar-day-number"
+            >
+
+                ${day}
+
+            </div>
+
+
+
+            ${
+
+                blocked
+
+                    ? `<div class="day-status">🔒</div>`
+
+                    : ""
+
+            }
+
+
+
+            ${scheduleHtml}
+
+
+
+            ${eventHtml}
+
+
+        </button>
+
+    `;
 
 }
 
+/* =========================================================
+   CLICK CALENDAR DATE
+   ========================================================= */
+
+document.addEventListener(
+    "click",
+    function (event) {
+
+        const button =
+            event.target.closest(
+                "[data-calendar-date]"
+            );
 
 
-// ==========================================
-// FORMAT DATE
-// ==========================================
-
-function formatDate(date){
-
-
-    if(!date){
-        return "-";
-    }
-
-
-
-    return new Date(
-        date + "T00:00:00"
-    )
-    .toLocaleDateString(
-        "id-ID",
-        {
-            day:"2-digit",
-            month:"short",
-            year:"numeric"
+        if (!button) {
+            return;
         }
-    );
 
 
-}
-// ==========================================
-// OPEN SCHEDULE FORM
-// ==========================================
-
-function openScheduleModal(){
+        const date =
+            button.dataset.calendarDate;
 
 
-    const modal =
-        document.getElementById(
-            "scheduleModal"
+        handleCalendarDateClick(
+            date
+        );
+
+    }
+);
+
+
+
+/* =========================================================
+   HANDLE DATE CLICK
+   ========================================================= */
+
+async function handleCalendarDateClick(
+    dateString
+) {
+
+
+    const calendarDay =
+        getCalendarDay(
+            dateString
         );
 
 
-    if(!modal){
+    /*
+       Tanggal tidak terdapat dalam
+       education_calendar.
+    */
 
-        console.error(
-            "scheduleModal tidak ditemukan"
+    if (!calendarDay) {
+
+        showScheduleMessage(
+            "Tanggal tersebut tidak tersedia pada kalender pendidikan."
         );
 
         return;
@@ -695,33 +1912,67 @@ function openScheduleModal(){
     }
 
 
+    /*
+       Tanggal ada tetapi tidak selectable.
+    */
 
-    modal.classList.add(
-        "show"
-    );
+    if (
+        calendarDay.is_selectable
+        !==
+        true
+    ) {
+
+        showUnavailableDate(
+            dateString,
+            calendarDay
+        );
+
+        return;
+
+    }
 
 
-}
+    /*
+       Validasi batas harian.
+    */
+
+    try {
+
+        const validation =
+            await validateDateForSchedule(
+                dateString
+            );
 
 
+        if (
+            !validation.valid
+        ) {
 
-// ==========================================
-// CLOSE MODAL
-// ==========================================
+            showScheduleMessage(
+                validation.message
+            );
 
-function closeScheduleModal(){
+            return;
+
+        }
 
 
-    const modal =
-        document.getElementById(
-            "scheduleModal"
+        openScheduleInputModal(
+            dateString
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "[Schedule] Validasi tanggal gagal:",
+            error
         );
 
 
-    if(modal){
-
-        modal.classList.remove(
-            "show"
+        showScheduleMessage(
+            error.message ||
+            "Tanggal tidak dapat diproses."
         );
 
     }
@@ -730,42 +1981,107 @@ function closeScheduleModal(){
 
 
 
-// ==========================================
-// VALIDASI HARIAN
-// ==========================================
+/* =========================================================
+   GET CALENDAR DAY
+   ========================================================= */
 
-async function validateDailySchedule(
-    date
-){
+function getCalendarDay(
+    dateString
+) {
 
+    return scheduleCalendarDays.find(
+        item =>
+            String(
+                item.date || ""
+            ).slice(
+                0,
+                10
+            )
+            ===
+            dateString
+    ) || null;
+
+}
+
+
+
+/* =========================================================
+   GET SCHEDULES BY DATE
+   ========================================================= */
+
+function getSchedulesForDate(
+    dateString
+) {
+
+    return scheduleSchedules.filter(
+        item =>
+
+            String(
+                item.date || ""
+            ).slice(
+                0,
+                10
+            )
+            ===
+            dateString
+
+    );
+
+}
+
+
+
+/* =========================================================
+   VALIDATE DAILY LIMIT
+   ========================================================= */
+
+async function validateDateForSchedule(
+    dateString
+) {
+
+
+    /*
+       Kita mengambil ulang data dari Supabase
+       agar validasi tidak hanya bergantung
+       pada data yang sedang ada di browser.
+    */
 
     const {
         data,
         error
-    }
-    =
+    } =
     await supabaseClient
+
         .from(
             "sumatif_schedules"
         )
+
         .select(
-            `
-            id,
-            assessment_type
-            `
+            "id,assessment_type,status"
         )
+
         .eq(
             "academic_year_id",
-            selectedAcademicYear
+            scheduleContext.academicYearId
         )
+
         .eq(
             "class_id",
-            selectedClass
+            scheduleContext.classId
         )
+
+        .eq(
+            "semester",
+            Number(
+                scheduleContext.semester
+            )
+        )
+
         .eq(
             "date",
-            date
+            dateString
         )
+
         .neq(
             "status",
             "cancelled"
@@ -773,7 +2089,7 @@ async function validateDailySchedule(
 
 
 
-    if(error){
+    if (error) {
 
         throw error;
 
@@ -789,11 +2105,14 @@ async function validateDailySchedule(
     const writtenCount =
         schedules.filter(
             item =>
-            item.assessment_type
-            ===
-            "written"
-        )
-        .length;
+
+                String(
+                    item.assessment_type || ""
+                ).toLowerCase()
+                ===
+                "written"
+
+        ).length;
 
 
 
@@ -802,16 +2121,20 @@ async function validateDailySchedule(
 
 
 
-    if(
+    /*
+       Maksimal 2 tes tertulis.
+    */
+
+    if (
         writtenCount >= 2
-    ){
+    ) {
 
         return {
 
             valid:false,
 
             message:
-            "Maksimal 2 Tes Tertulis dalam satu hari."
+                "Tanggal ini sudah memiliki 2 Tes Tertulis. Maksimal 2 Tes Tertulis dalam satu hari."
 
         };
 
@@ -819,16 +2142,20 @@ async function validateDailySchedule(
 
 
 
-    if(
+    /*
+       Maksimal 3 asesmen total.
+    */
+
+    if (
         totalCount >= 3
-    ){
+    ) {
 
         return {
 
             valid:false,
 
             message:
-            "Maksimal 3 asesmen dalam satu hari."
+                "Tanggal ini sudah memiliki 3 asesmen. Maksimal 3 asesmen dalam satu hari."
 
         };
 
@@ -842,19 +2169,512 @@ async function validateDailySchedule(
 
     };
 
+}
+
+
+
+/* =========================================================
+   OPEN INPUT MODAL
+   ========================================================= */
+
+function openScheduleInputModal(
+    dateString
+) {
+
+
+    closeScheduleInputModal();
+
+
+
+    const modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "scheduleInputModal";
+
+
+    modal.className =
+        "modal-overlay";
+
+
+
+    modal.innerHTML = `
+
+        <div
+            class="form-modal"
+        >
+
+
+            <!-- HEADER -->
+
+            <div
+                class="form-modal-header"
+            >
+
+                <div>
+
+                    <div
+                        class="modal-date-label"
+                    >
+                        TANGGAL SUMATIF
+                    </div>
+
+
+                    <h2>
+                        ${escapeHtml(
+                            formatDateLong(
+                                dateString
+                            )
+                        )}
+                    </h2>
+
+
+                    <p>
+                        ${escapeHtml(
+                            scheduleContext.className
+                        )}
+
+                        ·
+
+                        Semester
+                        ${escapeHtml(
+                            getSemesterLabel(
+                                scheduleContext.semester
+                            )
+                        )}
+                    </p>
+
+                </div>
+
+
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    id="closeScheduleInputButton"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+
+            <!-- FORM -->
+
+            <form
+                id="scheduleInputForm"
+            >
+
+
+                <!-- MAPEL -->
+
+                <div
+                    class="form-group"
+                >
+
+                    <label
+                        for="inputScheduleSubject"
+                    >
+                        Mata Pelajaran
+                    </label>
+
+
+                    <select
+                        id="inputScheduleSubject"
+                        required
+                    >
+
+                        <option value="">
+                            Pilih Mata Pelajaran
+                        </option>
+
+
+                        ${
+
+                            scheduleSubjects
+                                .map(
+                                    subject => `
+
+                                        <option
+                                            value="${escapeHtml(
+                                                subject.id
+                                            )}"
+                                        >
+
+                                            ${escapeHtml(
+                                                subject.name
+                                            )}
+
+                                        </option>
+
+                                    `
+                                )
+                                .join("")
+
+                        }
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- NOMOR + JENIS -->
+
+                <div
+                    class="form-grid"
+                >
+
+
+                    <div
+                        class="form-group"
+                    >
+
+                        <label
+                            for="inputScheduleNumber"
+                        >
+                            Nomor Sumatif
+                        </label>
+
+
+                        <select
+                            id="inputScheduleNumber"
+                            required
+                        >
+
+                            <option value="">
+                                Pilih Nomor
+                            </option>
+
+
+                            <option value="1">
+                                Sumatif 1
+                            </option>
+
+
+                            <option value="2">
+                                Sumatif 2
+                            </option>
+
+
+                            <option value="3">
+                                Sumatif 3
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div
+                        class="form-group"
+                    >
+
+                        <label
+                            for="inputScheduleType"
+                        >
+                            Jenis Asesmen
+                        </label>
+
+
+                        <select
+                            id="inputScheduleType"
+                            required
+                        >
+
+                            <option value="">
+                                Pilih Jenis
+                            </option>
+
+
+                            <option value="written">
+                                Tes Tertulis
+                            </option>
+
+
+                            <option value="practical">
+                                Tes Praktik
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- MATERI -->
+
+                <div
+                    class="form-group"
+                >
+
+                    <label
+                        for="inputScheduleMaterial"
+                    >
+                        Uraian Materi
+                    </label>
+
+
+                    <textarea
+                        id="inputScheduleMaterial"
+                        rows="4"
+                        placeholder="Masukkan materi yang diujikan..."
+                    ></textarea>
+
+                </div>
+
+
+
+                <!-- WAKTU -->
+
+                <div
+                    class="form-grid"
+                >
+
+
+                    <div
+                        class="form-group"
+                    >
+
+                        <label
+                            for="inputScheduleStartTime"
+                        >
+                            Waktu Mulai
+                        </label>
+
+
+                        <input
+                            type="time"
+                            id="inputScheduleStartTime"
+                        >
+
+                    </div>
+
+
+
+                    <div
+                        class="form-group"
+                    >
+
+                        <label
+                            for="inputScheduleEndTime"
+                        >
+                            Waktu Selesai
+                        </label>
+
+
+                        <input
+                            type="time"
+                            id="inputScheduleEndTime"
+                        >
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- RUANG + CATATAN -->
+
+                <div
+                    class="form-grid"
+                >
+
+
+                    <div
+                        class="form-group"
+                    >
+
+                        <label
+                            for="inputScheduleRoom"
+                        >
+                            Ruang
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="inputScheduleRoom"
+                            placeholder="Opsional"
+                        >
+
+                    </div>
+
+
+
+                    <div
+                        class="form-group"
+                    >
+
+                        <label
+                            for="inputScheduleNotes"
+                        >
+                            Catatan
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="inputScheduleNotes"
+                            placeholder="Opsional"
+                        >
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- ERROR -->
+
+                <div
+                    id="scheduleInputError"
+                    class="schedule-form-error"
+                    hidden
+                ></div>
+
+
+
+                <!-- FOOTER -->
+
+                <div
+                    class="form-modal-footer"
+                >
+
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        id="cancelScheduleInputButton"
+                    >
+                        Batal
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+                        Simpan Jadwal
+                    </button>
+
+                </div>
+
+
+            </form>
+
+
+        </div>
+
+    `;
+
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+
+    requestAnimationFrame(
+        () => {
+
+            modal.classList.add(
+                "show"
+            );
+
+        }
+    );
+
+
+
+    const form =
+        document.getElementById(
+            "scheduleInputForm"
+        );
+
+
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            function (event) {
+
+                saveScheduleFromCalendar(
+                    event,
+                    dateString
+                );
+
+            }
+        );
+
+    }
+
+
+
+    const closeButton =
+        document.getElementById(
+            "closeScheduleInputButton"
+        );
+
+
+    if (closeButton) {
+
+        closeButton.onclick =
+            closeScheduleInputModal;
+
+    }
+
+
+
+    const cancelButton =
+        document.getElementById(
+            "cancelScheduleInputButton"
+        );
+
+
+    if (cancelButton) {
+
+        cancelButton.onclick =
+            closeScheduleInputModal;
+
+    }
 
 }
 
 
 
-// ==========================================
-// SAVE SCHEDULE
-// ==========================================
+/* =========================================================
+   SAVE SCHEDULE
+   ========================================================= */
 
-async function saveSchedule(){
+async function saveScheduleFromCalendar(
+    event,
+    dateString
+) {
 
 
-    try{
+    event.preventDefault();
+
+
+
+    const errorElement =
+        document.getElementById(
+            "scheduleInputError"
+        );
+
+
+
+    try {
 
 
         const user =
@@ -862,34 +2682,179 @@ async function saveSchedule(){
 
 
 
-        if(!user){
+        if (!user) {
 
             throw new Error(
-                "User belum login"
+                "Sesi login tidak ditemukan."
             );
 
         }
 
 
 
-        if(!selectedDate){
+        const subjectId =
+            document.getElementById(
+                "inputScheduleSubject"
+            )?.value
+            ||
+            "";
+
+
+
+        const sumatifNumber =
+            document.getElementById(
+                "inputScheduleNumber"
+            )?.value
+            ||
+            "";
+
+
+
+        const assessmentType =
+            document.getElementById(
+                "inputScheduleType"
+            )?.value
+            ||
+            "";
+
+
+
+        const material =
+            document.getElementById(
+                "inputScheduleMaterial"
+            )?.value
+            ?.trim()
+            ||
+            "";
+
+
+
+        const startTime =
+            document.getElementById(
+                "inputScheduleStartTime"
+            )?.value
+            ||
+            null;
+
+
+
+        const endTime =
+            document.getElementById(
+                "inputScheduleEndTime"
+            )?.value
+            ||
+            null;
+
+
+
+        const room =
+            document.getElementById(
+                "inputScheduleRoom"
+            )?.value
+            ?.trim()
+            ||
+            null;
+
+
+
+        const notes =
+            document.getElementById(
+                "inputScheduleNotes"
+            )?.value
+            ?.trim()
+            ||
+            null;
+
+
+
+        /* =========================
+           REQUIRED
+        ========================== */
+
+        if (!subjectId) {
 
             throw new Error(
-                "Tanggal sumatif belum dipilih"
+                "Mata pelajaran wajib dipilih."
             );
 
         }
 
 
+
+        if (!sumatifNumber) {
+
+            throw new Error(
+                "Nomor sumatif wajib dipilih."
+            );
+
+        }
+
+
+
+        if (!assessmentType) {
+
+            throw new Error(
+                "Jenis asesmen wajib dipilih."
+            );
+
+        }
+
+
+
+        /* =========================
+           TIME VALIDATION
+        ========================== */
+
+        if (
+            startTime &&
+            endTime &&
+            startTime >= endTime
+        ) {
+
+            throw new Error(
+                "Waktu selesai harus lebih besar dari waktu mulai."
+            );
+
+        }
+
+
+
+        /* =========================
+           CALENDAR RECHECK
+        ========================== */
+
+        const calendarDay =
+            getCalendarDay(
+                dateString
+            );
+
+
+
+        if (
+            !calendarDay ||
+            calendarDay.is_selectable !== true
+        ) {
+
+            throw new Error(
+                "Tanggal tersebut tidak tersedia pada kalender pendidikan."
+            );
+
+        }
+
+
+
+        /* =========================
+           DAILY RECHECK
+        ========================== */
 
         const validation =
-            await validateDailySchedule(
-                selectedDate
+            await validateDateForSchedule(
+                dateString
             );
 
 
 
-        if(!validation.valid){
+        if (!validation.valid) {
 
             throw new Error(
                 validation.message
@@ -899,139 +2864,86 @@ async function saveSchedule(){
 
 
 
-        const subject =
-            document.getElementById(
-                "subjectSelect"
-            )
-            .value;
-
-
-
-        const number =
-            document.getElementById(
-                "sumatifNumber"
-            )
-            .value;
-
-
-
-        const type =
-            document.getElementById(
-                "assessmentType"
-            )
-            .value;
-
-
-
-        const material =
-            document.getElementById(
-                "materialInput"
-            )
-            .value;
-
-
-
-        const startTime =
-            document.getElementById(
-                "startTime"
-            )
-            ?.value
-            ||
-            null;
-
-
-
-        const endTime =
-            document.getElementById(
-                "endTime"
-            )
-            ?.value
-            ||
-            null;
-
-
-
-        const room =
-            document.getElementById(
-                "roomInput"
-            )
-            ?.value
-            ||
-            null;
-
-
-
-        const notes =
-            document.getElementById(
-                "notesInput"
-            )
-            ?.value
-            ||
-            null;
-
-
-
+        /* =========================
+           PAYLOAD
+        ========================== */
 
         const payload = {
 
-
             academic_year_id:
-                selectedAcademicYear,
+
+                scheduleContext
+                    .academicYearId,
 
 
             semester:
+
                 Number(
-                    selectedSemester
+                    scheduleContext
+                        .semester
                 ),
 
 
             class_id:
-                selectedClass,
+
+                scheduleContext
+                    .classId,
 
 
             subject_id:
-                subject,
+
+                subjectId,
 
 
             teacher_id:
+
                 user.id,
 
 
             sumatif_number:
+
                 Number(
-                    number
+                    sumatifNumber
                 ),
 
 
             date:
-                selectedDate,
+
+                dateString,
 
 
             start_time:
+
                 startTime,
 
 
             end_time:
+
                 endTime,
 
 
             material:
-                material,
+
+                material || null,
 
 
             assessment_type:
-                type,
+
+                assessmentType,
 
 
             room:
+
                 room,
 
 
             notes:
+
                 notes,
 
 
             status:
+
                 "scheduled"
 
         };
@@ -1039,30 +2951,41 @@ async function saveSchedule(){
 
 
         console.log(
-            "PAYLOAD:",
+            "[Schedule] INSERT:",
             payload
         );
 
 
 
+        /* =========================
+           INSERT
+        ========================== */
+
         const {
+
             data,
+
             error
-        }
-        =
+
+        } =
+
         await supabaseClient
+
             .from(
                 "sumatif_schedules"
             )
+
             .insert(
                 payload
             )
+
             .select()
+            
             .single();
 
 
 
-        if(error){
+        if (error) {
 
             throw error;
 
@@ -1071,100 +2994,922 @@ async function saveSchedule(){
 
 
         console.log(
-            "BERHASIL SIMPAN:",
+            "[Schedule] Berhasil disimpan:",
             data
         );
 
 
 
-        alert(
-            "Jadwal sumatif berhasil disimpan"
-        );
+        /* =========================
+           CLOSE
+        ========================== */
+
+        closeScheduleInputModal();
 
 
 
-        closeScheduleModal();
+        /* =========================
+           REFRESH DATA
+        ========================== */
+
+        await loadScheduleData();
 
 
 
-        // refresh kalender
-
-        await loadEducationCalendar();
+        renderEducationCalendar();
 
 
 
-        // refresh dashboard jika ada
+        renderScheduleList();
 
-        if(
+
+
+        /*
+           Jika dashboard sedang ditampilkan
+           oleh aplikasi, loadDashboard tetap
+           tersedia. Kita tidak memaksa reload
+           halaman.
+        */
+
+        if (
             typeof loadDashboard
             ===
             "function"
-        ){
+        ) {
 
-            await loadDashboard();
+            console.log(
+                "[Schedule] Jadwal baru tersimpan."
+            );
 
         }
 
 
 
+        showScheduleMessage(
+            "Jadwal sumatif berhasil disimpan."
+        );
+
+
     }
-    catch(error){
+    catch (error) {
 
 
         console.error(
-            "Gagal menyimpan jadwal:",
+            "[Schedule] Gagal menyimpan:",
             error
         );
 
 
 
-        alert(
-            error.message
-        );
+        if (errorElement) {
 
+            errorElement.textContent =
+
+                error.message
+                ||
+                "Jadwal gagal disimpan.";
+
+
+            errorElement.hidden =
+                false;
+
+        }
+        else {
+
+            showScheduleMessage(
+                error.message
+                ||
+                "Jadwal gagal disimpan."
+            );
+
+        }
 
     }
-
 
 }
 
 
 
-// ==========================================
-// BUTTON SIMPAN
-// ==========================================
+/* =========================================================
+   CLOSE INPUT MODAL
+   ========================================================= */
 
-document.addEventListener(
-    "click",
-    function(event){
+function closeScheduleInputModal() {
 
 
-        if(
-            event.target.id
-            ===
-            "saveScheduleBtn"
-        ){
+    const modal =
+        document.getElementById(
+            "scheduleInputModal"
+        );
 
 
-            saveSchedule();
+    if (!modal) {
 
-
-        }
-
-
-
-        if(
-            event.target.id
-            ===
-            "closeScheduleBtn"
-        ){
-
-
-            closeScheduleModal();
-
-
-        }
-
+        return;
 
     }
-); 
+
+
+
+    modal.classList.remove(
+        "show"
+    );
+
+
+
+    setTimeout(
+        () => {
+
+            if (
+                modal.parentNode
+            ) {
+
+                modal.remove();
+
+            }
+
+        },
+        200
+    );
+
+}
+
+
+
+/* =========================================================
+   SHOW UNAVAILABLE DATE
+   ========================================================= */
+
+function showUnavailableDate(
+    dateString,
+    calendarDay
+) {
+
+
+    closeUnavailableDate();
+
+
+
+    const modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "scheduleUnavailableModal";
+
+
+    modal.className =
+        "modal-overlay";
+
+
+
+    const title =
+        calendarDay?.title
+        ||
+        "Tanggal tidak tersedia";
+
+
+
+    const description =
+        calendarDay?.description
+        ||
+        "";
+
+
+
+    modal.innerHTML = `
+
+        <div
+            class="form-modal"
+        >
+
+            <div
+                class="form-modal-header"
+            >
+
+                <div>
+
+                    <div
+                        class="modal-date-label"
+                    >
+                        TANGGAL TIDAK TERSEDIA
+                    </div>
+
+
+                    <h2>
+                        ${escapeHtml(
+                            formatDateLong(
+                                dateString
+                            )
+                        )}
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    id="closeUnavailableButton"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+
+            <div
+                class="schedule-blocked-content"
+            >
+
+                <p>
+
+                    <strong>
+                        ${escapeHtml(
+                            title
+                        )}
+                    </strong>
+
+                </p>
+
+
+                ${
+                    description
+
+                    ?
+
+                    `
+                    <p>
+                        ${escapeHtml(
+                            description
+                        )}
+                    </p>
+                    `
+
+                    :
+
+                    ""
+                }
+
+
+                <p>
+                    Tanggal ini tidak dapat digunakan
+                    untuk membuat jadwal sumatif.
+                </p>
+
+            </div>
+
+
+
+            <div
+                class="form-modal-footer"
+            >
+
+                <button
+                    type="button"
+                    class="primary-button"
+                    id="closeUnavailableButton2"
+                >
+                    Tutup
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+
+    requestAnimationFrame(
+        () => {
+
+            modal.classList.add(
+                "show"
+            );
+
+        }
+    );
+
+
+
+    document
+        .getElementById(
+            "closeUnavailableButton"
+        )
+        ?.addEventListener(
+            "click",
+            closeUnavailableDate
+        );
+
+
+
+    document
+        .getElementById(
+            "closeUnavailableButton2"
+        )
+        ?.addEventListener(
+            "click",
+            closeUnavailableDate
+        );
+
+}
+
+
+
+/* =========================================================
+   CLOSE UNAVAILABLE MODAL
+   ========================================================= */
+
+function closeUnavailableDate() {
+
+
+    const modal =
+        document.getElementById(
+            "scheduleUnavailableModal"
+        );
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+
+    modal.classList.remove(
+        "show"
+    );
+
+
+
+    setTimeout(
+        () => {
+
+            if (
+                modal.parentNode
+            ) {
+
+                modal.remove();
+
+            }
+
+        },
+        200
+    );
+
+}
+
+
+
+/* =========================================================
+   RENDER SCHEDULE LIST
+   ========================================================= */
+
+function renderScheduleList() {
+
+
+    const section =
+        document.getElementById(
+            "scheduleListSection"
+        );
+
+
+    const list =
+        document.getElementById(
+            "scheduleList"
+        );
+
+
+
+    if (
+        !section ||
+        !list
+    ) {
+
+        return;
+
+    }
+
+
+
+    section.classList.remove(
+        "hidden"
+    );
+
+
+
+    const schedules =
+        scheduleSchedules
+            .filter(
+                item =>
+
+                    String(
+                        item.academic_year_id
+                    )
+                    ===
+                    String(
+                        scheduleContext
+                            .academicYearId
+                    )
+
+                    &&
+
+                    String(
+                        item.class_id
+                    )
+                    ===
+                    String(
+                        scheduleContext
+                            .classId
+                    )
+
+                    &&
+
+                    Number(
+                        item.semester
+                    )
+                    ===
+                    Number(
+                        scheduleContext
+                            .semester
+                    )
+
+                    &&
+
+                    String(
+                        item.status || ""
+                    )
+                    .toLowerCase()
+                    !==
+                    "cancelled"
+
+            )
+            .sort(
+                (a,b) => {
+
+                    const dateA =
+                        String(
+                            a.date || ""
+                        );
+
+
+                    const dateB =
+                        String(
+                            b.date || ""
+                        );
+
+
+                    if (
+                        dateA !== dateB
+                    ) {
+
+                        return dateA
+                            .localeCompare(
+                                dateB
+                            );
+
+                    }
+
+
+                    return String(
+                        a.start_time || ""
+                    )
+                    .localeCompare(
+                        String(
+                            b.start_time || ""
+                        )
+                    );
+
+                }
+            );
+
+
+
+    if (
+        schedules.length === 0
+    ) {
+
+        list.innerHTML = `
+
+            <div
+                class="schedule-list-empty"
+            >
+
+                Belum ada jadwal sumatif
+                untuk konteks ini.
+
+            </div>
+
+        `;
+
+
+        return;
+
+    }
+
+
+
+    list.innerHTML =
+
+        schedules
+
+            .map(
+                item => `
+
+                    <div
+                        class="schedule-list-item"
+                    >
+
+
+                        <div
+                            class="schedule-list-date"
+                        >
+
+                            ${escapeHtml(
+                                formatDateLong(
+                                    item.date
+                                )
+                            )}
+
+                        </div>
+
+
+
+                        <div
+                            class="schedule-list-info"
+                        >
+
+                            <strong>
+
+                                ${escapeHtml(
+                                    getSubjectName(
+                                        item.subject_id
+                                    )
+                                )}
+
+                            </strong>
+
+
+
+                            <span>
+
+                                Sumatif
+                                ${escapeHtml(
+                                    item.sumatif_number
+                                )}
+
+                                ·
+
+                                ${escapeHtml(
+                                    formatAssessmentType(
+                                        item.assessment_type
+                                    )
+                                )}
+
+                            </span>
+
+
+
+                            <small>
+
+                                ${escapeHtml(
+                                    item.material
+                                    ||
+                                    "Tanpa uraian materi"
+                                )}
+
+                            </small>
+
+
+                        </div>
+
+
+                    </div>
+
+                `
+            )
+
+            .join("");
+
+}
+
+
+
+/* =========================================================
+   SUBJECT NAME
+   ========================================================= */
+
+function getSubjectName(
+    subjectId
+) {
+
+
+    const subject =
+        scheduleSubjects.find(
+
+            item =>
+
+                String(
+                    item.id
+                )
+                ===
+                String(
+                    subjectId
+                )
+
+        );
+
+
+
+    return subject
+        ? subject.name
+        : "-";
+
+}
+
+
+
+/* =========================================================
+   SEMESTER LABEL
+   ========================================================= */
+
+function getSemesterLabel(
+    semester
+) {
+
+
+    return Number(
+        semester
+    )
+    ===
+    1
+
+        ? "Ganjil"
+
+        : "Genap";
+
+}
+
+
+
+/* =========================================================
+   ASSESSMENT TYPE
+   ========================================================= */
+
+function formatAssessmentType(
+    type
+) {
+
+
+    const value =
+        String(
+            type || ""
+        )
+        .toLowerCase();
+
+
+
+    if (
+        value === "written"
+    ) {
+
+        return "Tes Tertulis";
+
+    }
+
+
+
+    if (
+        value === "practical"
+    ) {
+
+        return "Tes Praktik";
+
+    }
+
+
+
+    return type || "-";
+
+}
+
+
+
+/* =========================================================
+   FORMAT DATE
+   ========================================================= */
+
+function formatDateLong(
+    dateValue
+) {
+
+
+    if (!dateValue) {
+
+        return "-";
+
+    }
+
+
+
+    const parts =
+        String(
+            dateValue
+        )
+        .slice(
+            0,
+            10
+        )
+        .split("-")
+        .map(
+            Number
+        );
+
+
+
+    if (
+        parts.length !== 3
+        ||
+        parts.some(
+            value =>
+                Number.isNaN(
+                    value
+                )
+        )
+    ) {
+
+        return String(
+            dateValue
+        );
+
+    }
+
+
+
+    const date =
+        new Date(
+            parts[0],
+            parts[1] - 1,
+            parts[2]
+        );
+
+
+
+    return date.toLocaleDateString(
+        "id-ID",
+        {
+
+            weekday:
+                "long",
+
+            day:
+                "numeric",
+
+            month:
+                "long",
+
+            year:
+                "numeric"
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
+   HTML ESCAPE
+   ========================================================= */
+
+function escapeHtml(
+    value
+) {
+
+
+    return String(
+        value ?? ""
+    )
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+
+/* =========================================================
+   MESSAGE
+   ========================================================= */
+
+function showScheduleMessage(
+    message
+) {
+
+
+    if (
+        typeof showToast
+        ===
+        "function"
+    ) {
+
+
+        showToast(
+            message,
+            "warning"
+        );
+
+
+        return;
+
+    }
+
+
+
+    alert(
+        message
+    );
+
+}
+
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+function showScheduleError(
+    message
+) {
+
+
+    console.error(
+        "[Schedule]",
+        message
+    );
+
+
+
+    if (
+        typeof showToast
+        ===
+        "function"
+    ) {
+
+
+        showToast(
+            message,
+            "error"
+        );
+
+
+        return;
+
+    }
+
+
+
+    alert(
+        message
+    );
+
+}
+
+
+
+/* =========================================================
+   END SCHEDULE.JS
+   ========================================================= */
