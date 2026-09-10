@@ -466,10 +466,15 @@ const classSelect =
         "scheduleClassFilter"
     );
 
-const semesterFilter =
-    document.getElementById(
-        "scheduleSemesterFilter"
-    );
+   const semesterRaw =
+    semesterFilter.value;
+
+const semester =
+    semesterRaw === "Ganjil"
+        ? 1
+        : semesterRaw === "Genap"
+            ? 2
+            : Number(semesterRaw);
 
 
 
@@ -861,17 +866,7 @@ async function handleScheduleContextChange() {
         classFilter.value;
 
 
-    const semesterRaw =
-    semesterFilter.value;
-
-const semester =
-    semesterRaw === "Ganjil"
-        ? 1
-        : semesterRaw === "Genap"
-            ? 2
-            : Number(semesterRaw);
-
-
+ 
     /* =========================
        CONTEXT BELUM LENGKAP
     ========================== */
