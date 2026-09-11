@@ -3836,10 +3836,12 @@ function showScheduleMessage(
 
 
 
-    alert(
-        message
-    );
-
+    showAppDialog(
+    message,
+    "Jadwal sumatif berhasil disimpan.",
+    "success",
+    "Jadwal Berhasil Disimpan"
+);
 }
 
 
@@ -3879,9 +3881,11 @@ function showScheduleError(
 
 
 
-    alert(
-        message
-    );
+    showAppDialog(
+    message,
+    "error",
+    "Terjadi Kesalahan"
+);
 
 }
 
