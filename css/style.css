@@ -767,4 +767,155 @@ button {
 
 }
 
+/* =========================================
+   APP DIALOG
+========================================= */
 
+.app-dialog-overlay {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(15, 23, 42, 0.45);
+
+    z-index: 2000;
+
+    animation: appDialogFadeIn .15s ease;
+}
+
+.app-dialog {
+    width: 100%;
+    max-width: 430px;
+
+    background: white;
+
+    border-radius: 16px;
+
+    padding: 24px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.20);
+
+    animation: appDialogScaleIn .15s ease;
+}
+
+.app-dialog-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 16px;
+
+    border-radius: 50%;
+
+    font-size: 24px;
+
+    background: #f2f4f7;
+}
+
+.app-dialog-title {
+    margin: 0 0 8px;
+
+    font-size: 18px;
+
+    color: #172033;
+}
+
+.app-dialog-message {
+    margin: 0;
+
+    color: #667085;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+.app-dialog-footer {
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 24px;
+}
+
+.app-dialog-button {
+    min-width: 90px;
+
+    background: #2563eb;
+
+    color: white;
+}
+
+.app-dialog-button:hover {
+    background: #1d4ed8;
+}
+
+
+/* DIALOG TYPE */
+
+.app-dialog.success .app-dialog-icon {
+    color: #16a34a;
+}
+
+.app-dialog.warning .app-dialog-icon {
+    color: #d97706;
+}
+
+.app-dialog.error .app-dialog-icon {
+    color: #dc2626;
+}
+
+.app-dialog.info .app-dialog-icon {
+    color: #2563eb;
+}
+
+
+/* ANIMATION */
+
+@keyframes appDialogFadeIn {
+
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+
+}
+
+@keyframes appDialogScaleIn {
+
+    from {
+        opacity: 0;
+        transform: scale(.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    .app-dialog {
+        padding: 20px;
+
+        border-radius: 14px;
+    }
+
+}
