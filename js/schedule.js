@@ -3038,29 +3038,41 @@ async function saveScheduleFromCalendar(
 
 
 
-        if (errorElement) {
-
-            errorElement.textContent =
-
-                error.message
-                ||
-                "Jadwal gagal disimpan.";
+        const errorMessage =
+    error.message
+    ||
+    "Jadwal gagal disimpan.";
 
 
-            errorElement.hidden =
-                false;
+if (errorElement) {
 
-        }
-        else {
+    errorElement.textContent = "";
 
-            showScheduleMessage(
-                error.message
-                ||
-                "Jadwal gagal disimpan."
-            );
+    errorElement.hidden = true;
 
-        }
+}
 
+
+if (
+    typeof showAppDialog ===
+    "function"
+) {
+
+    showAppDialog(
+        errorMessage,
+        "warning",
+        "Jadwal Tidak Dapat Disimpan"
+    );
+
+}
+else {
+
+    console.error(
+        "[Schedule] Dialog aplikasi tidak tersedia:",
+        errorMessage
+    );
+
+}
     }
 
 }
