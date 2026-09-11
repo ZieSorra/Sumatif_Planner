@@ -168,6 +168,14 @@ async function loadUser() {
 
         await loadDashboard();
 
+        // --------------------------------------
+// LOAD SCHEDULE
+// --------------------------------------
+
+if (typeof initSchedule === "function") {
+    initSchedule();
+}
+
 
     } catch (error) {
 
