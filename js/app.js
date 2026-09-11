@@ -328,3 +328,167 @@ supabaseClient.auth.onAuthStateChange(
 
     }
 );
+
+// ==========================================
+// APP DIALOG
+// ==========================================
+
+function showAppDialog(
+    message,
+    type = "info",
+    title = null
+) {
+
+    // Hapus dialog lama jika masih ada
+    const existing =
+        document.getElementById(
+            "appDialogOverlay"
+        );
+
+    if (existing) {
+        existing.remove();
+    }
+
+
+    // Judul default
+    const dialogTitle =
+        title ||
+        (
+            type === "success"
+                ? "Berhasil"
+                : type === "warning"
+                    ? "Perhatian"
+                    : type === "error"
+                        ? "Terjadi Kesalahan"
+                        : "Informasi"
+        );
+
+
+    // Icon
+    const icon =
+        type === "success"
+            ? "✓"
+            : type === "warning"
+                ? "⚠"
+                : type === "error"
+                    ? "✕"
+                    : "ℹ";
+
+
+    // Overlay
+    const overlay =
+        document.createElement("div");
+
+    overlay.id =
+        "appDialogOverlay";
+
+    overlay.className =
+        "app-dialog-overlay";
+
+
+    // Dialog
+    const dialog =
+        document.createElement("div");
+
+    dialog.className =
+        `app-dialog ${type}`;
+
+
+    dialog.innerHTML = `
+        <div class="app-dialog-icon">
+            ${icon}
+        </div>
+
+        <h3 class="app-dialog-title">
+            ${dialogTitle}
+        </h3>
+
+        <p class="app-dialog-message"></p>
+
+        <div class="app-dialog-footer">
+            <button
+                type="button"
+                class="app-dialog-button"
+            >
+                Oke
+            </button>
+        </div>
+    `;
+
+
+    // Message aman dari HTML injection
+    dialog.querySelector(
+        ".app-dialog-message"
+    ).textContent = message;
+
+
+    // Tombol
+    const closeButton =
+        dialog.querySelector(
+            ".app-dialog-button"
+        );
+
+
+    function closeDialog() {
+
+        overlay.remove();
+
+    }
+
+
+    closeButton.addEventListener(
+        "click",
+        closeDialog
+    );
+
+
+    // Klik area luar dialog
+    overlay.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                event.target === overlay
+            ) {
+
+                closeDialog();
+
+            }
+
+        }
+    );
+
+
+    // ESC
+    document.addEventListener(
+        "keydown",
+        function handleEscape(event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeDialog();
+
+                document.removeEventListener(
+                    "keydown",
+                    handleEscape
+                );
+
+            }
+
+        }
+    );
+
+
+    overlay.appendChild(dialog);
+
+    document.body.appendChild(
+        overlay
+    );
+
+
+    // Fokus tombol
+    closeButton.focus();
+
+}
