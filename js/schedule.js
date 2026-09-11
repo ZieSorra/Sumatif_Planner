@@ -3830,30 +3830,26 @@ function showScheduleMessage(
 
 
     if (
-        typeof showToast
+        typeof showAppDialog
         ===
         "function"
     ) {
 
-
-        showToast(
-            message,
-            "warning"
-        );
-
-
-        return;
-
-    }
-
-
-
-    showAppDialog(
+   showAppDialog(
     message,
     "Jadwal sumatif berhasil disimpan.",
     "success",
     "Jadwal Berhasil Disimpan"
-);
+   );
+       return;
+       
+    }
+
+    console.error(
+        "[Schedule] Dialog tidak tersedia:",
+        message
+    );
+
 }
 
 
@@ -3866,41 +3862,28 @@ function showScheduleError(
     message
 ) {
 
-
     console.error(
         "[Schedule]",
         message
     );
 
 
-
     if (
-        typeof showToast
-        ===
+        typeof showAppDialog ===
         "function"
     ) {
 
-
-        showToast(
+        showAppDialog(
             message,
-            "error"
+            "error",
+            "Terjadi Kesalahan"
         );
-
 
         return;
 
     }
 
-
-
-    showAppDialog(
-    message,
-    "error",
-    "Terjadi Kesalahan"
-);
-
 }
-
 
 
 /* =========================================================
