@@ -2802,46 +2802,45 @@ async function saveScheduleFromCalendar(
            CALENDAR RECHECK
         ========================== */
 
-        const calendarDay =
-            getCalendarDay(
-                dateString
-            );
+       async function handleCalendarDateClick(
+    dateString
+) {
 
+    const calendarDay =
+        getCalendarDay(
+            dateString
+        );
 
+    if (!calendarDay) {
 
-        if (
-            !calendarDay ||
-            calendarDay.is_selectable !== true
-        ) {
+        showScheduleMessage(
+            "Tanggal tersebut tidak tersedia pada kalender pendidikan."
+        );
 
-            throw new Error(
-                "Tanggal tersebut tidak tersedia pada kalender pendidikan."
-            );
+        return;
 
-        }
+    }
 
+    if (
+        calendarDay.is_selectable
+        !==
+        true
+    ) {
 
+        showUnavailableDate(
+            dateString,
+            calendarDay
+        );
 
-        /* =========================
-           DAILY RECHECK
-        ========================== */
+        return;
 
-        const validation =
-    await validateScheduleRules(
-        dateString,
-        assessmentType,
-        startTime,
-        endTime
-    );
+    }
 
-if (!validation.valid) {
-
-    throw new Error(
-        validation.message
+    openScheduleInputModal(
+        dateString
     );
 
 }
-
         /* =========================
            PAYLOAD
         ========================== */
