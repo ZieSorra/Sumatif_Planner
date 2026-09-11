@@ -1850,25 +1850,7 @@ async function handleCalendarDateClick(
 
     try {
 
-        const validation =
-            await validateDateForSchedule(
-                dateString
-            );
-
-
-        if (
-            !validation.valid
-        ) {
-
-            showScheduleMessage(
-                validation.message
-            );
-
-            return;
-
-        }
-
-
+        
         openScheduleInputModal(
             dateString
         );
@@ -1947,138 +1929,223 @@ function getSchedulesForDate(
    VALIDATE DAILY LIMIT
    ========================================================= */
 
-async function validateDateForSchedule(
-    dateString
+async function validateScheduleRules(
+    dateString,
+    assessmentType,
+    startTime,
+    endTime
 ) {
-
-
-    /*
-       Kita mengambil ulang data dari Supabase
-       agar validasi tidak hanya bergantung
-       pada data yang sedang ada di browser.
-    */
 
     const {
         data,
         error
-    } =
-    await supabaseClient
-
-        .from(
-            "sumatif_schedules"
-        )
-
-        .select(
-            "id,assessment_type,status"
-        )
-
+    } = await supabaseClient
+        .from("sumatif_schedules")
+        .select(`
+            id,
+            assessment_type,
+            start_time,
+            end_time,
+            status
+        `)
         .eq(
             "academic_year_id",
             scheduleContext.academicYearId
         )
-
         .eq(
             "class_id",
             scheduleContext.classId
         )
-
         .eq(
             "semester",
             Number(
                 scheduleContext.semester
             )
         )
-
         .eq(
             "date",
             dateString
         )
-
         .neq(
             "status",
             "cancelled"
         );
 
-
-
     if (error) {
-
         throw error;
-
     }
 
-
-
-    const schedules =
-        data || [];
-
-
+    const schedules = data || [];
 
     const writtenCount =
         schedules.filter(
             item =>
-
                 String(
                     item.assessment_type || ""
                 ).toLowerCase()
                 ===
                 "written"
-
         ).length;
 
-
+    const practicalCount =
+        schedules.filter(
+            item =>
+                String(
+                    item.assessment_type || ""
+                ).toLowerCase()
+                ===
+                "practical"
+        ).length;
 
     const totalCount =
         schedules.length;
 
 
-
-    /*
-       Maksimal 2 tes tertulis.
-    */
+    // ==========================================
+    // 1. MAKSIMAL 2 TES TERTULIS
+    // ==========================================
 
     if (
+        assessmentType === "written"
+        &&
         writtenCount >= 2
     ) {
 
         return {
-
-            valid:false,
-
+            valid: false,
             message:
                 "Tanggal ini sudah memiliki 2 Tes Tertulis. Maksimal 2 Tes Tertulis dalam satu hari."
-
         };
 
     }
 
 
-
-    /*
-       Maksimal 3 asesmen total.
-    */
+    // ==========================================
+    // 2. MAKSIMAL 3 ASESMEN
+    // ==========================================
 
     if (
         totalCount >= 3
     ) {
 
         return {
-
-            valid:false,
-
+            valid: false,
             message:
                 "Tanggal ini sudah memiliki 3 asesmen. Maksimal 3 asesmen dalam satu hari."
-
         };
 
     }
 
 
+    // ==========================================
+    // 3. JIKA MENJADI ASESMEN KE-3,
+    //    HARUS ADA TES PRAKTIK
+    // ==========================================
+
+    if (
+        totalCount === 2
+        &&
+        assessmentType !== "practical"
+    ) {
+
+        return {
+            valid: false,
+            message:
+                "Asesmen ke-3 hanya diperbolehkan jika salah satu asesmen merupakan Tes Praktik."
+        };
+
+    }
+
+
+    // ==========================================
+    // 4. VALIDASI WAKTU
+    // ==========================================
+
+    if (
+        startTime
+        &&
+        endTime
+    ) {
+
+        if (
+            startTime >= endTime
+        ) {
+
+            return {
+                valid: false,
+                message:
+                    "Waktu selesai harus lebih besar dari waktu mulai."
+            };
+
+        }
+
+
+        // ======================================
+        // CEK BENTROK WAKTU
+        // ======================================
+
+        const newStart =
+            startTime;
+
+        const newEnd =
+            endTime;
+
+
+        const hasOverlap =
+            schedules.some(
+                item => {
+
+                    if (
+                        !item.start_time
+                        ||
+                        !item.end_time
+                    ) {
+                        return false;
+                    }
+
+
+                    const existingStart =
+                        String(
+                            item.start_time
+                        ).slice(0, 5);
+
+                    const existingEnd =
+                        String(
+                            item.end_time
+                        ).slice(0, 5);
+
+
+                    return (
+                        newStart < existingEnd
+                        &&
+                        newEnd > existingStart
+                    );
+
+                }
+            );
+
+
+        if (
+            hasOverlap
+        ) {
+
+            return {
+                valid: false,
+                message:
+                    "Waktu yang dipilih bertabrakan dengan jadwal sumatif lain pada kelas ini."
+            };
+
+        }
+
+    }
+
+
+    // ==========================================
+    // VALID
+    // ==========================================
 
     return {
-
-        valid:true
-
+        valid: true
     };
 
 }
@@ -2760,21 +2827,20 @@ async function saveScheduleFromCalendar(
         ========================== */
 
         const validation =
-            await validateDateForSchedule(
-                dateString
-            );
+    await validateScheduleRules(
+        dateString,
+        assessmentType,
+        startTime,
+        endTime
+    );
 
+if (!validation.valid) {
 
+    throw new Error(
+        validation.message
+    );
 
-        if (!validation.valid) {
-
-            throw new Error(
-                validation.message
-            );
-
-        }
-
-
+}
 
         /* =========================
            PAYLOAD
