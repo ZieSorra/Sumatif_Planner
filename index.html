@@ -78,23 +78,121 @@
 
             <header class="app-header">
 
-                <div>
+    <div class="app-brand">
 
-                    <h1>Sumatif Planner</h1>
+        <button
+            id="sidebarToggle"
+            class="sidebar-toggle"
+            type="button"
+            aria-label="Buka atau tutup menu"
+        >
+            ☰
+        </button>
 
-                    <p id="userInfo"></p>
+        <div class="brand-text">
+            <h1>Sumatif Planner</h1>
+            <span>Manajemen Jadwal Sumatif</span>
+        </div>
 
-                </div>
+    </div>
 
-                <button
-                    id="logoutBtn"
-                    class="btn-secondary"
-                >
-                    Logout
-                </button>
 
-            </header>
+    <div class="app-user">
 
+        <div class="user-info">
+
+            <strong id="headerUserName">
+                Guru
+            </strong>
+
+            <span>
+                Guru
+            </span>
+
+        </div>
+
+        <button
+            id="logoutBtn"
+            class="btn-secondary"
+            type="button"
+        >
+            Logout
+        </button>
+
+    </div>
+
+</header>
+            <div class="app-shell">
+
+    <aside
+        id="appSidebar"
+        class="app-sidebar"
+    >
+
+        <nav class="sidebar-nav">
+
+            <div class="sidebar-label">
+                MENU UTAMA
+            </div>
+
+            <button
+                type="button"
+                class="sidebar-menu active"
+                data-menu="dashboard"
+            >
+                <span class="sidebar-icon">▣</span>
+                <span>Dashboard</span>
+            </button>
+
+
+            <button
+                type="button"
+                class="sidebar-menu"
+                data-menu="schedule"
+            >
+                <span class="sidebar-icon">▤</span>
+                <span>Jadwal Sumatif</span>
+            </button>
+
+
+            <button
+                type="button"
+                class="sidebar-menu"
+                data-menu="calendar"
+            >
+                <span class="sidebar-icon">▦</span>
+                <span>Kalender Sumatif</span>
+            </button>
+
+
+            <div class="sidebar-divider"></div>
+
+            <div class="sidebar-label">
+                AKUN
+            </div>
+
+            <button
+                type="button"
+                class="sidebar-menu"
+                data-menu="profile"
+            >
+                <span class="sidebar-icon">●</span>
+                <span>Profil</span>
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="sidebar-school">
+                <strong>Sumatif Planner</strong>
+                <span>2026/2027</span>
+            </div>
+
+        </div>
+
+    </aside>
 
             <!-- MAIN -->
 
@@ -419,6 +517,8 @@
 </section>
 
  </main>
+</div>
+
 <!-- =========================
      MODAL TAMBAH JADWAL
 ========================== -->
