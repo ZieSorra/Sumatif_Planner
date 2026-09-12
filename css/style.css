@@ -2284,3 +2284,164 @@ body {
     }
 
 }
+
+/* =========================================
+   DASHBOARD
+========================================= */
+
+.dashboard-home {
+    display: block;
+}
+
+
+/* =========================================
+   LATEST SCHEDULE
+========================================= */
+
+.dashboard-latest {
+    margin-top: 24px;
+}
+
+
+.latest-schedule-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+
+.latest-schedule-item {
+    display: grid;
+
+    grid-template-columns:
+        110px
+        minmax(180px, 1fr)
+        140px
+        100px;
+
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 15px 18px;
+
+    background: white;
+
+    border:
+        1px solid #eaecf0;
+
+    border-radius: 10px;
+
+    transition:
+        border-color .15s ease,
+        box-shadow .15s ease;
+}
+
+
+.latest-schedule-item:hover {
+    border-color: #cbd5e1;
+
+    box-shadow:
+        0 3px 10px rgba(16, 24, 40, .05);
+}
+
+
+.latest-date {
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: #344054;
+}
+
+
+.latest-subject {
+    min-width: 0;
+}
+
+
+.latest-subject strong {
+    display: block;
+
+    margin-bottom: 3px;
+
+    font-size: 14px;
+}
+
+
+.latest-subject span {
+    display: block;
+
+    overflow: hidden;
+
+    color: #667085;
+
+    font-size: 12px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+.latest-category {
+    font-size: 12px;
+
+    color: #475467;
+}
+
+
+.latest-type {
+    justify-self: start;
+
+    padding:
+        5px 9px;
+
+    border-radius: 20px;
+
+    background: #f2f4f7;
+
+    color: #475467;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+.latest-empty,
+.latest-loading {
+    padding: 28px;
+
+    text-align: center;
+
+    background: white;
+
+    border:
+        1px solid #eaecf0;
+
+    border-radius: 10px;
+
+    color: #667085;
+
+    font-size: 13px;
+}
+
+
+/* =========================================
+   DASHBOARD MOBILE
+========================================= */
+
+@media (max-width: 800px) {
+
+    .latest-schedule-item {
+        grid-template-columns: 1fr;
+
+        gap: 6px;
+    }
+
+    .latest-type {
+        justify-self: start;
+    }
+
+}
