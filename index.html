@@ -200,7 +200,7 @@
 
                 <!-- WELCOME -->
 
-                <section class="welcome-card">
+                <section class="welcome-card dashboard-home">
 
                     <h2>
                         Selamat datang, <span id="welcomeName"></span> 👋
@@ -215,7 +215,7 @@
 
                 <!-- SUMMARY -->
 
-                <section class="dashboard-summary">
+                <section class="dashboard-summary dashboard-home">
 
                     <div class="summary-card">
 
@@ -281,13 +281,44 @@
                     </div>
 
                 </section>
+<section class="dashboard-latest dashboard-home">
 
+    <div class="section-header">
+        <div>
+            <h2>Jadwal Terdekat</h2>
+            <p>
+                Jadwal sumatif yang akan datang.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            class="secondary-button"
+            data-menu="schedule"
+        >
+            Lihat Semua
+        </button>
+    </div>
+
+    <div
+        id="latestScheduleList"
+        class="latest-schedule-list"
+    >
+        <div class="latest-loading">
+            Memuat jadwal...
+        </div>
+    </div>
+
+</section>
+                
 
                     <!-- =========================
      JADWAL SUMATIF
 ========================== -->
 
-<section class="schedule-section">
+<section  id="scheduleWorkspace"
+    class="schedule-section schedule-workspace hidden"
+    >
 
     <div class="section-header">
 
