@@ -1668,3 +1668,286 @@ body {
     }
 
 }
+
+/* =========================================
+   CALENDAR FIX
+   Struktur mengikuti schedule.js
+========================================= */
+
+/* Container kalender */
+.calendar-grid {
+    display: block;
+    width: 100%;
+}
+
+
+/* Kartu bulan */
+.month-card {
+    width: 100%;
+}
+
+
+/* Judul bulan */
+.month-title {
+    margin-bottom: 14px;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    color: #172033;
+}
+
+
+/* Nama hari */
+.calendar-weekdays {
+    display: grid;
+
+    grid-template-columns:
+        repeat(7, minmax(0, 1fr));
+
+    gap: 8px;
+
+    margin-bottom: 8px;
+}
+
+.calendar-weekdays > div {
+    padding: 8px 4px;
+
+    text-align: center;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    color: #667085;
+}
+
+
+/* Area tanggal */
+.calendar-days {
+    display: grid;
+
+    grid-template-columns:
+        repeat(7, minmax(0, 1fr));
+
+    gap: 8px;
+}
+
+
+/* Sel kosong sebelum tanggal 1 */
+.calendar-empty-day {
+    min-height: 82px;
+}
+
+
+/* Tanggal */
+.calendar-day {
+    width: 100%;
+    min-width: 0;
+    min-height: 82px;
+
+    padding: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    border:
+        1px solid #eaecf0;
+
+    border-radius: 10px;
+
+    background: white;
+
+    font: inherit;
+
+    text-align: left;
+
+    transition:
+        border-color .15s ease,
+        background .15s ease,
+        box-shadow .15s ease,
+        transform .15s ease;
+}
+
+
+/* Tanggal yang dapat dipilih */
+.calendar-day.available {
+    cursor: pointer;
+}
+
+.calendar-day.available:hover {
+    background: #f8fbff;
+
+    border-color: #2563eb;
+
+    box-shadow:
+        0 3px 8px rgba(37, 99, 235, .08);
+
+    transform: translateY(-1px);
+}
+
+
+/* Tanggal yang memiliki jadwal */
+.calendar-day.has-schedule {
+    background: #f8fbff;
+
+    border-color: #bfdbfe;
+
+    cursor: pointer;
+}
+
+.calendar-day.has-schedule:hover {
+    border-color: #2563eb;
+}
+
+
+/* Tanggal tidak tersedia */
+.calendar-day.blocked {
+    background: #f8fafc;
+
+    border-color: #eaecf0;
+
+    cursor: not-allowed;
+
+    opacity: .75;
+}
+
+
+/* Nomor tanggal */
+.calendar-day-number {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 6px;
+
+    border-radius: 50%;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    color: #344054;
+}
+
+
+/* Tanggal yang punya jadwal */
+.calendar-day.has-schedule
+.calendar-day-number {
+    background: #eef4ff;
+
+    color: #175cd3;
+}
+
+
+/* Tanggal terblokir */
+.calendar-day.blocked
+.calendar-day-number {
+    color: #98a2b3;
+}
+
+
+/* Ikon hari terblokir */
+.day-status {
+    position: absolute;
+
+    top: 9px;
+    right: 9px;
+
+    font-size: 11px;
+}
+
+
+/* Jadwal di dalam tanggal */
+.calendar-schedule {
+    width: 100%;
+
+    overflow: hidden;
+
+    margin-top: 3px;
+    padding: 4px 6px;
+
+    border-radius: 5px;
+
+    background: #eef4ff;
+
+    color: #175cd3;
+
+    font-size: 10px;
+    font-weight: 600;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+/* Event / libur */
+.calendar-event {
+    width: 100%;
+
+    margin-top: 3px;
+    padding: 4px 6px;
+
+    border-radius: 5px;
+
+    background: #f2f4f7;
+
+    color: #667085;
+
+    font-size: 10px;
+    font-weight: 600;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+/* Jika ada beberapa bulan */
+.month-card + .month-card {
+    margin-top: 28px;
+
+    padding-top: 24px;
+
+    border-top:
+        1px solid #eaecf0;
+}
+
+
+/* =========================================
+   CALENDAR MOBILE
+========================================= */
+
+@media (max-width: 700px) {
+
+    .calendar-weekdays,
+    .calendar-days {
+        gap: 4px;
+    }
+
+    .calendar-day {
+        min-height: 64px;
+
+        padding: 6px;
+    }
+
+    .calendar-empty-day {
+        min-height: 64px;
+    }
+
+    .calendar-day-number {
+        width: 26px;
+        height: 26px;
+
+        font-size: 12px;
+    }
+
+    .calendar-schedule,
+    .calendar-event {
+        display: none;
+    }
+
+}
