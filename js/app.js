@@ -492,3 +492,105 @@ function showAppDialog(
     closeButton.focus();
 
 }
+
+// ==========================================
+// SIDEBAR NAVIGATION
+// ==========================================
+
+function showWorkspace(menu) {
+
+    const dashboardSections =
+        document.querySelectorAll(
+            ".dashboard-home"
+        );
+
+    const scheduleWorkspace =
+        document.getElementById(
+            "scheduleWorkspace"
+        );
+
+
+    if (menu === "dashboard") {
+
+        dashboardSections.forEach(
+            section => {
+                section.classList.remove(
+                    "hidden"
+                );
+            }
+        );
+
+        if (scheduleWorkspace) {
+            scheduleWorkspace.classList.add(
+                "hidden"
+            );
+        }
+
+    }
+
+
+    if (menu === "schedule") {
+
+        dashboardSections.forEach(
+            section => {
+                section.classList.add(
+                    "hidden"
+                );
+            }
+        );
+
+        if (scheduleWorkspace) {
+            scheduleWorkspace.classList.remove(
+                "hidden"
+            );
+        }
+
+    }
+
+
+    document
+        .querySelectorAll(
+            ".sidebar-menu"
+        )
+        .forEach(button => {
+
+            button.classList.toggle(
+                "active",
+                button.dataset.menu === menu
+            );
+
+        });
+
+}
+
+
+document.addEventListener(
+    "click",
+    event => {
+
+        const menu =
+            event.target.closest(
+                "[data-menu]"
+            );
+
+
+        if (!menu) {
+            return;
+        }
+
+
+        const target =
+            menu.dataset.menu;
+
+
+        if (
+            target === "dashboard" ||
+            target === "schedule"
+        ) {
+
+            showWorkspace(target);
+
+        }
+
+    }
+);
