@@ -594,3 +594,41 @@ document.addEventListener(
 
     }
 );
+
+
+// ==========================================
+// LOAD SUBJECT BOARD UI
+// ==========================================
+// schedule.js tetap menjadi sumber logika utama.
+// File ini hanya mengganti tampilan Jadwal Sumatif
+// setelah aplikasi selesai dimuat.
+
+(function loadScheduleBoardUI() {
+
+    const script = document.createElement("script");
+
+    script.src = "js/schedule-board.js?v=1";
+
+    script.onload = function () {
+
+        console.log("[Schedule Board] UI subject-card berhasil dimuat.");
+
+        if (
+            typeof scheduleContext !== "undefined" &&
+            scheduleContext.academicYearId &&
+            scheduleContext.classId &&
+            scheduleContext.semester &&
+            typeof renderScheduleList === "function"
+        ) {
+            renderScheduleList();
+        }
+
+    };
+
+    script.onerror = function () {
+        console.error("[Schedule Board] Gagal memuat schedule-board.js");
+    };
+
+    document.body.appendChild(script);
+
+})();
