@@ -208,13 +208,15 @@ function openBoardScheduleInputModal(dateString, subjectId) {
         .schedule-subject-card-footer{padding:12px 20px;background:#fcfcfd;border-top:1px solid #eef0f3}
         .schedule-add-button{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 12px;background:#fff;color:#175cd3;border:1px dashed #98a2b3;border-radius:9px;font-size:13px;font-weight:700}
         .schedule-add-button:hover{background:#f5f9ff;border-color:#175cd3}.schedule-add-button>span{font-size:18px;line-height:1}
-        .schedule-calendar-modal-card{width:min(1120px,calc(100vw - 32px));max-height:calc(100vh - 40px);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 70px rgba(16,24,40,.22);display:flex;flex-direction:column}
-        .schedule-calendar-modal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;padding:22px 24px 18px;border-bottom:1px solid #eaecf0}
+
+        #scheduleCalendarModal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;overflow:hidden}
+        #scheduleCalendarModal .schedule-calendar-modal-card{width:min(1120px,100%);max-height:calc(100vh - 40px);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 70px rgba(16,24,40,.22);display:flex;flex-direction:column}
+        .schedule-calendar-modal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;padding:22px 24px 18px;border-bottom:1px solid #eaecf0;flex-shrink:0}
         .schedule-calendar-modal-header h2{margin:4px 0 5px;font-size:21px;color:#172033}.schedule-calendar-modal-header p{margin:0;color:#667085;font-size:13px}
-        .schedule-calendar-modal-body{padding:18px 22px 22px;overflow:auto}.schedule-calendar-legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:16px;color:#667085;font-size:12px}.schedule-calendar-legend span{display:inline-flex;align-items:center;gap:6px}.schedule-calendar-legend .legend{width:9px;height:9px;border-radius:50%;display:inline-block}
+        .schedule-calendar-modal-body{padding:18px 22px 22px;overflow:auto;min-height:0}.schedule-calendar-legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:16px;color:#667085;font-size:12px}.schedule-calendar-legend span{display:inline-flex;align-items:center;gap:6px}.schedule-calendar-legend .legend{width:9px;height:9px;border-radius:50%;display:inline-block}
         .schedule-date-picker-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}#scheduleCalendarModal .month-card{margin:0}
         @media(max-width:900px){.schedule-subject-board,.schedule-date-picker-grid{grid-template-columns:1fr}}
-        @media(max-width:600px){.schedule-subject-card-header,.schedule-subject-row{padding-left:15px;padding-right:15px}.schedule-calendar-modal-card{width:calc(100vw - 18px);max-height:calc(100vh - 18px)}.schedule-calendar-modal-header,.schedule-calendar-modal-body{padding-left:15px;padding-right:15px}}
+        @media(max-width:600px){.schedule-subject-card-header,.schedule-subject-row{padding-left:15px;padding-right:15px}#scheduleCalendarModal{padding:9px}#scheduleCalendarModal .schedule-calendar-modal-card{width:100%;max-height:calc(100vh - 18px)}.schedule-calendar-modal-header,.schedule-calendar-modal-body{padding-left:15px;padding-right:15px}}
     `;
     document.head.appendChild(style);
 })();
