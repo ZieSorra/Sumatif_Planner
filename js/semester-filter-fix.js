@@ -1,0 +1,11 @@
+/* Semester/filter consistency fix */
+(function(){
+ if(window.__semesterFix)return; window.__semesterFix=true;
+ function ensureSelect(id){const s=document.getElementById(id);if(!s)return;if(!s.dataset.semesterFix){s.dataset.semesterFix="1";s.innerHTML='<option value="">Pilih Semester</option><option value="1">Ganjil</option><option value="2">Genap</option>';s.value="";}}
+ function firstMonth(){const s=document.getElementById("calendarPlannerSemester"),y=document.getElementById("calendarPlannerYear");if(!s||!y||!s.value||!y.value)return;const text=y.options[y.selectedIndex]?.textContent||"",m=text.match(/(20\d{2})\s*\/\s*(20\d{2})/);if(!m)return;const yy=Number(s.value)===1?Number(m[1]):Number(m[2]),mm=Number(s.value)===1?5:0;if(typeof calendarPlannerState!=="undefined"){calendarPlannerState.year=yy;calendarPlannerState.month=mm;}}
+ document.addEventListener("click",e=>{if(e.target.closest('[data-menu="calendar"]'))setTimeout(()=>{ensureSelect("calendarPlannerSemester");const y=document.getElementById("calendarPlannerYear"),c=document.getElementById("calendarPlannerClass");if(y)y.value="";if(c)c.value="";const g=document.getElementById("calendarPlannerGrid");if(g)g.innerHTML='<div class="calendar-planner-empty">Pilih Tahun Pelajaran, Kelas, dan Semester.</div>';const t=document.getElementById("calendarPlannerMonthTitle");if(t)t.textContent="-";},150);},true);
+ document.addEventListener("click",e=>{if(e.target.closest('[data-menu="report"]'))setTimeout(()=>{ensureSelect("reportSemester");const y=document.getElementById("reportYear"),c=document.getElementById("reportClass");if(y)y.value="";if(c)c.value="";},150);},true);
+ document.addEventListener("change",e=>{if(e.target.id==="calendarPlannerSemester"){firstMonth();setTimeout(firstMonth,50);}if(e.target.id==="calendarPlannerYear"){const s=document.getElementById("calendarPlannerSemester");if(s)s.value="";}},true);
+ const obs=new MutationObserver(()=>{ensureSelect("calendarPlannerSemester");ensureSelect("reportSemester");});obs.observe(document.body,{childList:true,subtree:true});
+ const timer=setInterval(()=>{ensureSelect("calendarPlannerSemester");ensureSelect("reportSemester");},500);setTimeout(()=>clearInterval(timer),15000);
+})();
