@@ -8,7 +8,6 @@
     window.__sumatifReportInstalled = true;
 
     const state = { years: [], classes: [], schedules: [], yearId: "", classId: "", semester: 1 };
-
     const esc = value => String(value ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
     const subjectName = id => (typeof scheduleSubjects !== "undefined" ? scheduleSubjects : []).find(x => String(x.id) === String(id))?.name || "Mata Pelajaran";
     const fmtDate = value => new Intl.DateTimeFormat("id-ID", {day:"2-digit", month:"short", year:"numeric"}).format(new Date(String(value).slice(0,10) + "T00:00:00"));
@@ -100,7 +99,6 @@
         button.disabled = true;
         button.textContent = "Memuat...";
         try {
-            // Re-read the current context so newly added/edited schedules are reflected.
             const yearSelect = document.getElementById("reportYear");
             const classSelect = document.getElementById("reportClass");
             const semesterSelect = document.getElementById("reportSemester");
@@ -108,33 +106,30 @@
             state.classId = classSelect?.value || state.classId;
             state.semester = Number(semesterSelect?.value || state.semester || 1);
             await loadSchedules();
-            if (typeof showAppDialog === "function") {
-                showAppDialog("Data laporan berhasil diperbarui.", "success", "Laporan Diperbarui");
-            }
+            if (typeof showAppDialog === "function") showAppDialog("Data laporan berhasil diperbarui.", "success", "Laporan Diperbarui");
         } catch (error) {
             console.error("[Report] Gagal memuat ulang:", error);
-            if (typeof showAppDialog === "function") {
-                showAppDialog("Gagal memuat ulang laporan: " + error.message, "error", "Laporan");
-            }
-        } finally {
-            button.disabled = false;
-            button.textContent = originalText;
-        }
+            if (typeof showAppDialog === "function") showAppDialog("Gagal memuat ulang laporan: " + error.message, "error", "Laporan");
+        } finally { button.disabled = false; button.textContent = originalText; }
     }
 
     function bindEvents() {
         document.getElementById("reportYear")?.addEventListener("change", async e => { state.yearId = e.target.value; await loadSchedules(); });
         document.getElementById("reportClass")?.addEventListener("change", async e => { state.classId = e.target.value; await loadSchedules(); });
         document.getElementById("reportSemester")?.addEventListener("change", async e => { state.semester = Number(e.target.value); await loadSchedules(); });
-        document.getElementById("reportRefresh")?.addEventListener("click", event => {
-            event.preventDefault();
-            event.stopPropagation();
-            refreshReport();
-        });
+        document.getElementById("reportRefresh")?.addEventListener("click", event => { event.preventDefault(); event.stopPropagation(); refreshReport(); });
         document.getElementById("reportPrint")?.addEventListener("click", event => {
             event.preventDefault();
             event.stopPropagation();
-            window.print();
+            if (typeof window.printSumatifReport === "function") {
+                window.printSumatifReport().catch(error => {
+                    console.error("[Report] Gagal mencetak:", error);
+                    if (typeof showAppDialog === "function") showAppDialog(error.message, "error", "Cetak Laporan");
+                });
+            } else {
+                console.error("[Report] Renderer cetak belum tersedia.");
+                if (typeof showAppDialog === "function") showAppDialog("Modul cetak laporan belum siap. Silakan muat ulang halaman.", "warning", "Cetak Laporan");
+            }
         });
     }
 
@@ -151,17 +146,13 @@
     }
 
     function closeReport() { document.getElementById("sumatifReportWorkspace")?.classList.add("hidden"); }
-
     document.addEventListener("click", event => {
         const menu = event.target.closest("[data-menu]");
         if (!menu) return;
         const target = menu.dataset.menu;
         if (target === "report") openReport().catch(error => { console.error("[Report]", error); if (typeof showAppDialog === "function") showAppDialog("Gagal memuat laporan: " + error.message, "error", "Laporan"); });
-        if (target === "dashboard") closeReport();
-        if (target === "schedule") closeReport();
-        if (target === "calendar") closeReport();
+        if (["dashboard","schedule","calendar"].includes(target)) closeReport();
     });
-
     function boot() { injectMenu(); ensureWorkspace(); }
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, {once:true}); else boot();
 })();
