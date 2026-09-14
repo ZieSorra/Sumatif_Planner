@@ -1,5 +1,5 @@
 /* =========================================================
-   SCHEDULE BOARD FIX / MODULE BOOTSTRAP
+   SUMATIF PLANNER - MODULE BOOTSTRAP
    ========================================================= */
 
 (function bootCalendarPlanner() {
@@ -45,25 +45,43 @@
     const script = document.createElement("script");
     script.src = "js/master.js?v=3";
     script.dataset.masterData = "1";
-    script.onload = () => {
+    script.onload = async () => {
         console.log("[Master] Modul Data Master dimuat.");
 
-        if (typeof initMasterData === "function") {
-            initMasterData();
+        // Sinkronkan role dari tabel profiles setelah sesi login tersedia.
+        async function syncAdminProfile() {
+            try {
+                if (typeof getCurrentUser !== "function" || typeof getProfile !== "function") return;
+                const user = await getCurrentUser();
+                if (!user) return;
+                const profile = await getProfile(user.id);
+                if (!profile) return;
+
+                window.currentProfile = profile;
+
+                const roleLabel = document.querySelector(".app-user .user-info span");
+                if (roleLabel) roleLabel.textContent = profile.role === "admin" ? "Admin" : "Guru";
+
+                console.log("[Master] Role tersinkron:", profile.role);
+
+                if (typeof initMaster === "function") {
+                    initMaster();
+                }
+            } catch (error) {
+                console.error("[Master] Gagal sinkron role:", error);
+            }
         }
 
-        // master.js dapat dimuat sebelum sesi login tersedia.
+        await syncAdminProfile();
+
         // Pastikan Data Master diinisialisasi kembali setelah login.
         if (!window.__masterAuthListenerInstalled && typeof supabaseClient !== "undefined") {
             window.__masterAuthListenerInstalled = true;
             supabaseClient.auth.onAuthStateChange((event, session) => {
-                if (session && typeof initMasterData === "function") {
-                    setTimeout(() => initMasterData(), 0);
-                }
+                if (session) setTimeout(syncAdminProfile, 0);
             });
         }
 
-        // Fix form Tahun Pelajaran setelah master.js tersedia.
         if (!document.querySelector('script[data-academic-year-fix="1"]')) {
             const academicYearFix = document.createElement("script");
             academicYearFix.src = "js/master-academic-year-fix.js?v=1";
@@ -73,7 +91,6 @@
             document.body.appendChild(academicYearFix);
         }
 
-        // Aksi status Tahun Pelajaran: Aktif / Nonaktifkan.
         if (!document.querySelector('script[data-academic-year-status-action="1"]')) {
             const statusScript = document.createElement("script");
             statusScript.src = "js/master-academic-year-action-fix.js?v=1";
@@ -83,7 +100,6 @@
             document.body.appendChild(statusScript);
         }
 
-        // Data Master harus disembunyikan saat pengguna berpindah ke workspace lain.
         if (!document.querySelector('script[data-master-navigation-fix="1"]')) {
             const navigationFix = document.createElement("script");
             navigationFix.src = "js/master-navigation-fix.js?v=1";
