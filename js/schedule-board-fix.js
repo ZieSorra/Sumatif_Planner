@@ -48,7 +48,6 @@
     script.onload = async () => {
         console.log("[Master] Modul Data Master dimuat.");
 
-        // Sinkronkan role dari tabel profiles setelah sesi login tersedia.
         async function syncAdminProfile() {
             try {
                 if (typeof getCurrentUser !== "function" || typeof getProfile !== "function") return;
@@ -64,9 +63,7 @@
 
                 console.log("[Master] Role tersinkron:", profile.role);
 
-                if (typeof initMaster === "function") {
-                    initMaster();
-                }
+                if (typeof initMaster === "function") initMaster();
             } catch (error) {
                 console.error("[Master] Gagal sinkron role:", error);
             }
@@ -74,7 +71,6 @@
 
         await syncAdminProfile();
 
-        // Pastikan Data Master diinisialisasi kembali setelah login.
         if (!window.__masterAuthListenerInstalled && typeof supabaseClient !== "undefined") {
             window.__masterAuthListenerInstalled = true;
             supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -107,6 +103,15 @@
             navigationFix.onload = () => console.log("[Master] Navigasi workspace diperbaiki.");
             navigationFix.onerror = error => console.error("[Master] Gagal memuat perbaikan navigasi:", error);
             document.body.appendChild(navigationFix);
+        }
+
+        if (!document.querySelector('script[data-ui-consistency-fix="1"]')) {
+            const uiFix = document.createElement("script");
+            uiFix.src = "js/ui-consistency-fix.js?v=1";
+            uiFix.dataset.uiConsistencyFix = "1";
+            uiFix.onload = () => console.log("[UI Fix] Konsistensi dashboard, filter, kalender, dan workspace aktif.");
+            uiFix.onerror = error => console.error("[UI Fix] Gagal memuat perbaikan UI:", error);
+            document.body.appendChild(uiFix);
         }
     };
     script.onerror = error => console.error("[Master] Gagal memuat Data Master:", error);
