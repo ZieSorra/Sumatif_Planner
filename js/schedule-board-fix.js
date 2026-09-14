@@ -4,13 +4,11 @@
 
 (function bootCalendarPlanner() {
     if (document.querySelector('script[data-calendar-planner="1"]')) return;
-
     const script = document.createElement("script");
     script.src = "js/calendar.js?v=1";
     script.dataset.calendarPlanner = "1";
     script.onload = () => {
         console.log("[Calendar] Kalender Sumatif aktif.");
-
         if (document.querySelector('script[data-calendar-print="1"]')) return;
         const printScript = document.createElement("script");
         printScript.src = "js/calendar-print.js?v=3";
@@ -32,9 +30,9 @@
         console.log("[Report] Laporan Sumatif aktif.");
         if (document.querySelector('script[data-report-print="1"]')) return;
         const printScript = document.createElement("script");
-        printScript.src = "js/report-print.js?v=2";
+        printScript.src = "js/report-print.js?v=3";
         printScript.dataset.reportPrint = "1";
-        printScript.onload = () => console.log("[Report] Template cetak laporan F4 aktif.");
+        printScript.onload = () => console.log("[Report] Template cetak laporan F4 v3 aktif.");
         printScript.onerror = error => console.error("[Report] Gagal memuat template cetak laporan:", error);
         document.body.appendChild(printScript);
     };
