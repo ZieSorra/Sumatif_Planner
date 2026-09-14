@@ -33,10 +33,21 @@
         document.body.appendChild(script);
     }
 
+    function loadScheduleMasterSync() {
+        if (document.querySelector('script[data-schedule-master-sync="1"]')) return;
+        const script = document.createElement("script");
+        script.src = "js/schedule-master-sync-fix.js?v=1";
+        script.dataset.scheduleMasterSync = "1";
+        script.onload = () => console.log("[Schedule Master] Sinkronisasi Data Master dimuat.");
+        script.onerror = error => console.error("[Schedule Master] Gagal memuat sinkronisasi Data Master:", error);
+        document.body.appendChild(script);
+    }
+
     function ensureAdminMenu() {
         loadMasterStyle();
         loadGuruFix();
         loadConfirmFix();
+        loadScheduleMasterSync();
 
         const profile = window.currentProfile;
         if (!profile || profile.role !== "admin") return;
@@ -73,6 +84,7 @@
         loadMasterStyle();
         loadGuruFix();
         loadConfirmFix();
+        loadScheduleMasterSync();
         setTimeout(ensureAdminMenu, 0);
         setTimeout(ensureAdminMenu, 300);
         setTimeout(ensureAdminMenu, 1000);
