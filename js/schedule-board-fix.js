@@ -82,6 +82,16 @@
             statusScript.onerror = error => console.error("[Master] Gagal memuat aksi status Tahun Pelajaran:", error);
             document.body.appendChild(statusScript);
         }
+
+        // Data Master harus disembunyikan saat pengguna berpindah ke workspace lain.
+        if (!document.querySelector('script[data-master-navigation-fix="1"]')) {
+            const navigationFix = document.createElement("script");
+            navigationFix.src = "js/master-navigation-fix.js?v=1";
+            navigationFix.dataset.masterNavigationFix = "1";
+            navigationFix.onload = () => console.log("[Master] Navigasi workspace diperbaiki.");
+            navigationFix.onerror = error => console.error("[Master] Gagal memuat perbaikan navigasi:", error);
+            document.body.appendChild(navigationFix);
+        }
     };
     script.onerror = error => console.error("[Master] Gagal memuat Data Master:", error);
     document.body.appendChild(script);
