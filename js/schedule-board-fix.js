@@ -7,14 +7,33 @@
     if (window.__scheduleActionsBootstrapInstalled) return;
     window.__scheduleActionsBootstrapInstalled = true;
 
-    function loadActions() {
-        if (typeof window.renderScheduleList !== "function") return false;
-        if (document.querySelector('script[data-schedule-actions="1"]')) return true;
+    function loadDeleteDialog() {
+        if (document.querySelector('script[data-schedule-delete-dialog="1"]')) return;
 
         const script = document.createElement("script");
-        script.src = "js/schedule-actions.js?v=1";
+        script.src = "js/schedule-delete-dialog.js?v=1";
+        script.dataset.scheduleDeleteDialog = "1";
+        script.onload = () => console.log("[Schedule Board] Dialog Hapus aktif.");
+        script.onerror = error => console.error("[Schedule Board] Gagal memuat dialog Hapus:", error);
+        document.body.appendChild(script);
+    }
+
+    function loadActions() {
+        if (typeof window.renderScheduleList !== "function") return false;
+
+        const existing = document.querySelector('script[data-schedule-actions="1"]');
+        if (existing) {
+            loadDeleteDialog();
+            return true;
+        }
+
+        const script = document.createElement("script");
+        script.src = "js/schedule-actions.js?v=2";
         script.dataset.scheduleActions = "1";
-        script.onload = () => console.log("[Schedule Board] Edit/Hapus aktif.");
+        script.onload = () => {
+            console.log("[Schedule Board] Edit/Hapus aktif.");
+            loadDeleteDialog();
+        };
         script.onerror = error => console.error("[Schedule Board] Gagal memuat Edit/Hapus:", error);
         document.body.appendChild(script);
         return true;
