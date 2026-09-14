@@ -47,3 +47,17 @@
 
     setTimeout(() => clearInterval(timer), 15000);
 })();
+
+/* =========================================================
+   BOOTSTRAP KALENDER SUMATIF
+   ========================================================= */
+(function bootCalendarPlanner() {
+    if (document.querySelector('script[data-calendar-planner="1"]')) return;
+
+    const script = document.createElement("script");
+    script.src = "js/calendar.js?v=1";
+    script.dataset.calendarPlanner = "1";
+    script.onload = () => console.log("[Calendar] Kalender Sumatif aktif.");
+    script.onerror = error => console.error("[Calendar] Gagal memuat Kalender Sumatif:", error);
+    document.body.appendChild(script);
+})();
