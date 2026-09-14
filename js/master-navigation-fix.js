@@ -6,7 +6,6 @@
 (function () {
     function loadMasterStyle() {
         if (document.querySelector('link[data-master-style="1"]')) return;
-
         const link = document.createElement("link");
         link.rel = "stylesheet";
         link.href = "css/master.css?v=1";
@@ -24,9 +23,20 @@
         document.body.appendChild(script);
     }
 
+    function loadConfirmFix() {
+        if (document.querySelector('script[data-master-confirm-fix="1"]')) return;
+        const script = document.createElement("script");
+        script.src = "js/master-confirm-fix.js?v=1";
+        script.dataset.masterConfirmFix = "1";
+        script.onload = () => console.log("[Master] Dialog konfirmasi custom aktif.");
+        script.onerror = error => console.error("[Master] Gagal memuat dialog konfirmasi custom:", error);
+        document.body.appendChild(script);
+    }
+
     function ensureAdminMenu() {
         loadMasterStyle();
         loadGuruFix();
+        loadConfirmFix();
 
         const profile = window.currentProfile;
         if (!profile || profile.role !== "admin") return;
@@ -35,19 +45,16 @@
         if (!nav) return;
 
         let menu = document.getElementById("masterDataMenu");
-
         if (!menu) {
             const divider = document.createElement("div");
             divider.className = "sidebar-divider";
             divider.id = "masterDataDivider";
-
             menu = document.createElement("button");
             menu.type = "button";
             menu.id = "masterDataMenu";
             menu.className = "sidebar-menu";
             menu.dataset.menu = "master";
             menu.innerHTML = '<span class="sidebar-icon">▦</span><span>Data Master</span>';
-
             const profileMenu = nav.querySelector('[data-menu="profile"]');
             if (profileMenu) {
                 nav.insertBefore(divider, profileMenu);
@@ -56,18 +63,16 @@
                 nav.appendChild(divider);
                 nav.appendChild(menu);
             }
-
             console.log("[Master] Menu Data Master dipastikan tersedia untuk admin.");
         }
 
-        if (typeof initMaster === "function") {
-            initMaster(profile);
-        }
+        if (typeof initMaster === "function") initMaster(profile);
     }
 
     function run() {
         loadMasterStyle();
         loadGuruFix();
+        loadConfirmFix();
         setTimeout(ensureAdminMenu, 0);
         setTimeout(ensureAdminMenu, 300);
         setTimeout(ensureAdminMenu, 1000);
