@@ -28,7 +28,16 @@
     const script = document.createElement("script");
     script.src = "js/report.js?v=1";
     script.dataset.sumatifReport = "1";
-    script.onload = () => console.log("[Report] Laporan Sumatif aktif.");
+    script.onload = () => {
+        console.log("[Report] Laporan Sumatif aktif.");
+        if (document.querySelector('script[data-report-print="1"]')) return;
+        const printScript = document.createElement("script");
+        printScript.src = "js/report-print.js?v=1";
+        printScript.dataset.reportPrint = "1";
+        printScript.onload = () => console.log("[Report] Layout cetak laporan F4 aktif.");
+        printScript.onerror = error => console.error("[Report] Gagal memuat layout cetak laporan:", error);
+        document.body.appendChild(printScript);
+    };
     script.onerror = error => console.error("[Report] Gagal memuat Laporan Sumatif:", error);
     document.body.appendChild(script);
 })();
