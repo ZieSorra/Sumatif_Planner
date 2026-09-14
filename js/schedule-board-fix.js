@@ -47,8 +47,20 @@
     script.dataset.masterData = "1";
     script.onload = () => {
         console.log("[Master] Modul Data Master dimuat.");
+
         if (typeof initMasterData === "function") {
             initMasterData();
+        }
+
+        // master.js dapat dimuat sebelum sesi login tersedia.
+        // Pastikan Data Master diinisialisasi kembali setelah login.
+        if (!window.__masterAuthListenerInstalled && typeof supabaseClient !== "undefined") {
+            window.__masterAuthListenerInstalled = true;
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (session && typeof initMasterData === "function") {
+                    setTimeout(() => initMasterData(), 0);
+                }
+            });
         }
     };
     script.onerror = error => console.error("[Master] Gagal memuat Data Master:", error);
