@@ -39,13 +39,12 @@
         return true;
     }
 
-    if (loadActions()) return;
-
-    const timer = setInterval(() => {
-        if (loadActions()) clearInterval(timer);
-    }, 100);
-
-    setTimeout(() => clearInterval(timer), 15000);
+    if (!loadActions()) {
+        const timer = setInterval(() => {
+            if (loadActions()) clearInterval(timer);
+        }, 100);
+        setTimeout(() => clearInterval(timer), 15000);
+    }
 })();
 
 /* =========================================================
