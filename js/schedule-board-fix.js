@@ -43,7 +43,7 @@
 (function bootMaster() {
     if (document.querySelector('script[data-master-data="1"]')) return;
     const script = document.createElement("script");
-    script.src = "js/master.js?v=1";
+    script.src = "js/master.js?v=2";
     script.dataset.masterData = "1";
     script.onload = () => console.log("[Master] Modul Data Master dimuat.");
     script.onerror = error => console.error("[Master] Gagal memuat Data Master:", error);
