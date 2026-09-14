@@ -14,8 +14,19 @@
         document.head.appendChild(link);
     }
 
+    function loadGuruFix() {
+        if (document.querySelector('script[data-master-guru-fix="1"]')) return;
+        const script = document.createElement("script");
+        script.src = "js/master-data-guru-fix.js?v=1";
+        script.dataset.masterGuruFix = "1";
+        script.onload = () => console.log("[Master] Perbaikan form Data Guru aktif.");
+        script.onerror = error => console.error("[Master] Gagal memuat perbaikan Data Guru:", error);
+        document.body.appendChild(script);
+    }
+
     function ensureAdminMenu() {
         loadMasterStyle();
+        loadGuruFix();
 
         const profile = window.currentProfile;
         if (!profile || profile.role !== "admin") return;
@@ -56,6 +67,7 @@
 
     function run() {
         loadMasterStyle();
+        loadGuruFix();
         setTimeout(ensureAdminMenu, 0);
         setTimeout(ensureAdminMenu, 300);
         setTimeout(ensureAdminMenu, 1000);
