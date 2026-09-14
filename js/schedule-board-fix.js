@@ -1,37 +1,30 @@
 /* =========================================================
-   FIX: BRIDGE TO LEGACY INPUT MODAL
-   schedule-board.js menggunakan nama global yang sama dengan
-   modal lama. Simpan fungsi lama sebelum board dimuat, lalu
-   gunakan bridge ini agar tidak terjadi rekursi.
+   FIX / BOOTSTRAP SCHEDULE BOARD
+   Memuat fitur aksi setelah Subject Board tersedia.
    ========================================================= */
 
-function openScheduleInputModal(dateString, subjectId) {
+(function bootScheduleActions() {
+    if (window.__scheduleActionsBootstrapInstalled) return;
+    window.__scheduleActionsBootstrapInstalled = true;
 
-    const legacyModal =
-        window.__legacyScheduleInputModal;
+    function loadActions() {
+        if (typeof window.renderScheduleList !== "function") return false;
+        if (document.querySelector('script[data-schedule-actions="1"]')) return true;
 
-    if (typeof legacyModal !== "function") {
-        console.error(
-            "[Schedule Board] Modal input lama tidak tersedia."
-        );
-        return;
+        const script = document.createElement("script");
+        script.src = "js/schedule-actions.js?v=1";
+        script.dataset.scheduleActions = "1";
+        script.onload = () => console.log("[Schedule Board] Edit/Hapus aktif.");
+        script.onerror = error => console.error("[Schedule Board] Gagal memuat Edit/Hapus:", error);
+        document.body.appendChild(script);
+        return true;
     }
 
-    legacyModal(dateString);
+    if (loadActions()) return;
 
-    requestAnimationFrame(() => {
+    const timer = setInterval(() => {
+        if (loadActions()) clearInterval(timer);
+    }, 100);
 
-        const subjectSelect =
-            document.getElementById(
-                "inputScheduleSubject"
-            );
-
-        if (
-            subjectSelect &&
-            subjectId
-        ) {
-            subjectSelect.value = subjectId;
-        }
-
-    });
-}
+    setTimeout(() => clearInterval(timer), 15000);
+})();
