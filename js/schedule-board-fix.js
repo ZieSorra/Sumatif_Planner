@@ -62,6 +62,16 @@
                 }
             });
         }
+
+        // Fix form Tahun Pelajaran setelah master.js tersedia.
+        if (!document.querySelector('script[data-academic-year-fix="1"]')) {
+            const academicYearFix = document.createElement("script");
+            academicYearFix.src = "js/master-academic-year-fix.js?v=1";
+            academicYearFix.dataset.academicYearFix = "1";
+            academicYearFix.onload = () => console.log("[Master] Form Tahun Pelajaran aktif.");
+            academicYearFix.onerror = error => console.error("[Master] Gagal memuat form Tahun Pelajaran:", error);
+            document.body.appendChild(academicYearFix);
+        }
     };
     script.onerror = error => console.error("[Master] Gagal memuat Data Master:", error);
     document.body.appendChild(script);
