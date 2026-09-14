@@ -1,11 +1,22 @@
 /* =========================================================
    SUMATIF PLANNER - MASTER NAVIGATION FIX
-   Memastikan menu Data Master muncul dan dapat diklik setelah
-   profile admin tersedia.
+   Memastikan menu Data Master dan tampilannya siap setelah profile admin tersedia.
    ========================================================= */
 
 (function () {
+    function loadMasterStyle() {
+        if (document.querySelector('link[data-master-style="1"]')) return;
+
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "css/master.css?v=1";
+        link.dataset.masterStyle = "1";
+        document.head.appendChild(link);
+    }
+
     function ensureAdminMenu() {
+        loadMasterStyle();
+
         const profile = window.currentProfile;
         if (!profile || profile.role !== "admin") return;
 
@@ -38,14 +49,13 @@
             console.log("[Master] Menu Data Master dipastikan tersedia untuk admin.");
         }
 
-        // master.js menyimpan profile ke state internal melalui parameter boot().
-        // Jangan memanggil initMaster() tanpa profile karena state internal tetap null.
         if (typeof initMaster === "function") {
             initMaster(profile);
         }
     }
 
     function run() {
+        loadMasterStyle();
         setTimeout(ensureAdminMenu, 0);
         setTimeout(ensureAdminMenu, 300);
         setTimeout(ensureAdminMenu, 1000);
