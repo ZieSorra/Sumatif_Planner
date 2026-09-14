@@ -2981,7 +2981,14 @@ async function saveScheduleFromCalendar(
            CLOSE
         ========================== */
 
-        closeScheduleInputModal();
+        if (
+    document.getElementById("scheduleCalendarModal") &&
+    typeof closeScheduleCalendarModal === "function"
+) {
+    closeScheduleCalendarModal();
+} else {
+    closeScheduleInputModal();
+}
 
 
 
@@ -3022,9 +3029,11 @@ async function saveScheduleFromCalendar(
 
 
 
-        showScheduleMessage(
-            "Jadwal sumatif berhasil disimpan."
-        );
+       showAppDialog(
+    "Jadwal sumatif berhasil disimpan.",
+    "success",
+    "Jadwal Berhasil Disimpan"
+);
 
 
     }
