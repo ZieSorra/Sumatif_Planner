@@ -93,12 +93,49 @@
         wrap.innerHTML = `<table class="report-table"><thead><tr><th>Tanggal</th><th>Sumatif</th><th>Mata Pelajaran</th><th>Materi</th><th>Waktu</th><th>Jenis</th><th>Status</th></tr></thead><tbody>${list.map(item => `<tr><td>${esc(fmtDate(item.date))}</td><td>Sumatif ${item.sumatif_number}</td><td>${esc(subjectName(item.subject_id))}</td><td>${esc(item.material || "-")}</td><td>${esc(fmtTime(item.start_time))}–${esc(fmtTime(item.end_time))}</td><td><span class="report-type ${item.assessment_type === "practical" ? "practical" : ""}">${item.assessment_type === "practical" ? "Tes Praktik" : "Tes Tertulis"}</span></td><td>${esc(item.status || "scheduled")}</td></tr>`).join("")}</tbody></table>`;
     }
 
+    async function refreshReport() {
+        const button = document.getElementById("reportRefresh");
+        if (!button) return;
+        const originalText = button.textContent;
+        button.disabled = true;
+        button.textContent = "Memuat...";
+        try {
+            // Re-read the current context so newly added/edited schedules are reflected.
+            const yearSelect = document.getElementById("reportYear");
+            const classSelect = document.getElementById("reportClass");
+            const semesterSelect = document.getElementById("reportSemester");
+            state.yearId = yearSelect?.value || state.yearId;
+            state.classId = classSelect?.value || state.classId;
+            state.semester = Number(semesterSelect?.value || state.semester || 1);
+            await loadSchedules();
+            if (typeof showAppDialog === "function") {
+                showAppDialog("Data laporan berhasil diperbarui.", "success", "Laporan Diperbarui");
+            }
+        } catch (error) {
+            console.error("[Report] Gagal memuat ulang:", error);
+            if (typeof showAppDialog === "function") {
+                showAppDialog("Gagal memuat ulang laporan: " + error.message, "error", "Laporan");
+            }
+        } finally {
+            button.disabled = false;
+            button.textContent = originalText;
+        }
+    }
+
     function bindEvents() {
         document.getElementById("reportYear")?.addEventListener("change", async e => { state.yearId = e.target.value; await loadSchedules(); });
         document.getElementById("reportClass")?.addEventListener("change", async e => { state.classId = e.target.value; await loadSchedules(); });
         document.getElementById("reportSemester")?.addEventListener("change", async e => { state.semester = Number(e.target.value); await loadSchedules(); });
-        document.getElementById("reportRefresh")?.addEventListener("click", loadSchedules);
-        document.getElementById("reportPrint")?.addEventListener("click", () => window.print());
+        document.getElementById("reportRefresh")?.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            refreshReport();
+        });
+        document.getElementById("reportPrint")?.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            window.print();
+        });
     }
 
     async function openReport() {
