@@ -72,6 +72,16 @@
             academicYearFix.onerror = error => console.error("[Master] Gagal memuat form Tahun Pelajaran:", error);
             document.body.appendChild(academicYearFix);
         }
+
+        // Aksi status Tahun Pelajaran: Aktif / Nonaktifkan.
+        if (!document.querySelector('script[data-academic-year-status-action="1"]')) {
+            const statusScript = document.createElement("script");
+            statusScript.src = "js/master-academic-year-action-fix.js?v=1";
+            statusScript.dataset.academicYearStatusAction = "1";
+            statusScript.onload = () => console.log("[Master] Aksi status Tahun Pelajaran siap.");
+            statusScript.onerror = error => console.error("[Master] Gagal memuat aksi status Tahun Pelajaran:", error);
+            document.body.appendChild(statusScript);
+        }
     };
     script.onerror = error => console.error("[Master] Gagal memuat Data Master:", error);
     document.body.appendChild(script);
