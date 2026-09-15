@@ -123,7 +123,7 @@
             }
 
             if (typeof validateScheduleRules === "function") {
-                validateScheduleRules(dateString, assessmentType, startTime, endTime);
+                await validateScheduleRules(dateString, assessmentType, startTime, endTime);
             }
 
             const user = await getCurrentUser();
