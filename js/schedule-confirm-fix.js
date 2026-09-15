@@ -97,16 +97,20 @@
         const item = typeof findScheduleById === "function" ? findScheduleById(id) : null;
         if (!item) throw new Error("Jadwal tidak ditemukan.");
 
-        // Sengaja hanya mengubah status. Tidak mengirim updated_at karena
-        // operasi delete sebelumnya mendapat HTTP 400 dari PostgREST.
-        const { error } = await supabaseClient
-            .from("sumatif_schedules")
-            .update({ status: "cancelled" })
-            .eq("id", item.id);
+        let result;
+        if (typeof window.performScheduleDeleteApi === "function") {
+            result = await window.performScheduleDeleteApi(id);
+        } else {
+            const { data, error } = await supabaseClient
+                .from("sumatif_schedules")
+                .update({ status: "cancelled" })
+                .eq("id", item.id)
+                .select();
+            if (error) throw error;
+            result = data;
+        }
 
-        if (error) throw error;
-
-        console.log("[Schedule] Berhasil dibatalkan:", item.id);
+        console.log("[Schedule] Berhasil dibatalkan:", result);
         await loadScheduleData();
         renderEducationCalendar();
         renderScheduleList();
