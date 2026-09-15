@@ -1,7 +1,7 @@
 /* =========================================================
    SUMATIF PLANNER - SCHEDULE CONFIRM DIALOG
    Mengganti confirm() bawaan browser pada Hapus Jadwal Sumatif.
-   Tidak mengubah database atau alur soft delete.
+   Soft delete: hanya mengubah status menjadi cancelled.
    ========================================================= */
 (function () {
     if (window.__scheduleConfirmFixInstalled) return;
@@ -97,9 +97,11 @@
         const item = typeof findScheduleById === "function" ? findScheduleById(id) : null;
         if (!item) throw new Error("Jadwal tidak ditemukan.");
 
+        // Sengaja hanya mengubah status. Tidak mengirim updated_at karena
+        // operasi delete sebelumnya mendapat HTTP 400 dari PostgREST.
         const { error } = await supabaseClient
             .from("sumatif_schedules")
-            .update({ status: "cancelled", updated_at: new Date().toISOString() })
+            .update({ status: "cancelled" })
             .eq("id", item.id);
 
         if (error) throw error;
