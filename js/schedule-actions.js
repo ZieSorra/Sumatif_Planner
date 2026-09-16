@@ -96,10 +96,8 @@ async function updateScheduleFromBoard(event, originalItem) {
         if (calendarDay && calendarDay.is_selectable !== true) throw new Error("Tanggal tersebut tidak tersedia pada Kalender Pendidikan.");
         const duplicate = (scheduleSchedules || []).some(item => String(item.id) !== String(originalItem.id) && String(item.subject_id) === String(originalItem.subject_id) && Number(item.sumatif_number) === sumatifNumber && String(item.status || "").toLowerCase() !== "cancelled");
         if (duplicate) throw new Error("Nomor sumatif tersebut sudah digunakan untuk mata pelajaran ini.");
-        if (typeof validateScheduleRules === "function") {
-            const originalSchedules = scheduleSchedules;
-            scheduleSchedules = originalSchedules.filter(item => String(item.id) !== String(originalItem.id));
-            try { await validateScheduleRules(date, assessmentType, startTime, endTime); } finally { scheduleSchedules = originalSchedules; }
+        if (typeof ensureScheduleRulesValid === "function") {
+            await ensureScheduleRulesValid(date, assessmentType, startTime, endTime, originalItem.id);
         }
         const { data, error } = await supabaseClient.from("sumatif_schedules").update({ date, sumatif_number: sumatifNumber, assessment_type: assessmentType, material: material || null, start_time: startTime, end_time: endTime, room, notes, updated_at: new Date().toISOString() }).eq("id", originalItem.id).select().single();
         if (error) throw error;

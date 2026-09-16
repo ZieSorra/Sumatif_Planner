@@ -1933,7 +1933,8 @@ async function validateScheduleRules(
     dateString,
     assessmentType,
     startTime,
-    endTime
+    endTime,
+    excludeScheduleId = ""
 ) {
 
     const {
@@ -1975,7 +1976,9 @@ async function validateScheduleRules(
         throw error;
     }
 
-    const schedules = data || [];
+    const schedules = (data || []).filter(
+        item => String(item.id) !== String(excludeScheduleId)
+    );
 
     const writtenCount =
         schedules.filter(
@@ -2148,6 +2151,27 @@ async function validateScheduleRules(
         valid: true
     };
 
+}
+
+
+async function ensureScheduleRulesValid(
+    dateString,
+    assessmentType,
+    startTime,
+    endTime,
+    excludeScheduleId = ""
+) {
+    const validation = await validateScheduleRules(
+        dateString,
+        assessmentType,
+        startTime,
+        endTime,
+        excludeScheduleId
+    );
+
+    if (!validation.valid) {
+        throw new Error(validation.message);
+    }
 }
 
 

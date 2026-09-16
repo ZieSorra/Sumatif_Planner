@@ -122,8 +122,8 @@
                 throw new Error("Tanggal tersebut tidak tersedia pada Kalender Pendidikan.");
             }
 
-            if (typeof validateScheduleRules === "function") {
-                await validateScheduleRules(dateString, assessmentType, startTime, endTime);
+            if (typeof ensureScheduleRulesValid === "function") {
+                await ensureScheduleRulesValid(dateString, assessmentType, startTime, endTime);
             }
 
             const user = await getCurrentUser();
