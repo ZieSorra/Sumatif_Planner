@@ -16,6 +16,41 @@ const loginMessage = document.getElementById("loginMessage");
 
 const logoutBtn = document.getElementById("logoutBtn");
 
+let authStateVersion = 0;
+let activeSessionUserId = null;
+
+
+function resetSessionUi({ clearProfile = true } = {}) {
+    if (clearProfile) {
+        window.currentProfile = null;
+    }
+
+    document.getElementById("masterDataMenu")?.remove();
+    document.getElementById("masterDataDivider")?.remove();
+
+    [
+        "masterWorkspace",
+        "calendarPlannerWorkspace",
+        "sumatifReportWorkspace",
+        "profileWorkspace"
+    ].forEach(id => document.getElementById(id)?.classList.add("hidden"));
+
+    document.getElementById("masterModalOverlay")?.remove();
+    document.getElementById("masterGuruFixOverlay")?.remove();
+    document.getElementById("teacherAssignmentModal")?.remove();
+    document.getElementById("masterConfirmOverlay")?.remove();
+
+    const headerUserName = document.getElementById("headerUserName");
+    const headerUserRole = document.querySelector(".app-user .user-info span");
+    const welcomeName = document.getElementById("welcomeName");
+
+    if (headerUserName) headerUserName.textContent = "Guru";
+    if (headerUserRole) headerUserRole.textContent = "Guru";
+    if (welcomeName) welcomeName.textContent = "";
+
+    showWorkspace("dashboard");
+}
+
 
 // ==========================================
 // SHOW LOGIN
@@ -41,16 +76,39 @@ function showApp() {
 // LOAD USER
 // ==========================================
 
-async function loadUser() {
+async function loadUser(
+    version = ++authStateVersion,
+    { resetWorkspace = false } = {}
+) {
     try {
         const user = await getCurrentUser();
 
+        if (version !== authStateVersion) return;
+
         if (!user) {
+            activeSessionUserId = null;
+            resetSessionUi();
             showLogin();
             return;
         }
 
         const profile = await getProfile(user.id);
+
+        if (version !== authStateVersion) return;
+
+        const isNewSessionUser = activeSessionUserId !== user.id;
+
+        window.currentProfile = profile;
+
+        if (resetWorkspace && isNewSessionUser) {
+            resetSessionUi({ clearProfile: false });
+        }
+
+        activeSessionUserId = user.id;
+
+        if (typeof initMaster === "function") {
+            initMaster(profile);
+        }
 
         console.log("USER:", user);
         console.log("PROFILE:", profile);
@@ -76,12 +134,15 @@ async function loadUser() {
         // --------------------------------------
         // LOAD SCHEDULE
         // --------------------------------------
-        if (typeof initSchedule === "function") {
+        if (isNewSessionUser && typeof initSchedule === "function") {
             initSchedule();
         }
 
     } catch (error) {
         console.error("Gagal memuat user:", error);
+        if (version !== authStateVersion) return;
+        activeSessionUserId = null;
+        resetSessionUi();
         showLogin();
     }
 }
@@ -118,6 +179,10 @@ if (loginForm) {
 
 if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
+        authStateVersion += 1;
+        activeSessionUserId = null;
+        resetSessionUi();
+
         try {
             await logout();
             showLogin();
@@ -135,11 +200,27 @@ if (logoutBtn) {
 supabaseClient.auth.onAuthStateChange((event, session) => {
     console.log("AUTH EVENT:", event);
 
-    if (session) {
+    if (event === "SIGNED_OUT") {
+        authStateVersion += 1;
+        activeSessionUserId = null;
+        resetSessionUi();
+        showLogin();
+        return;
+    }
+
+    if ((event === "INITIAL_SESSION" || event === "SIGNED_IN") && session) {
+        const version = ++authStateVersion;
+
         setTimeout(() => {
-            loadUser();
+            loadUser(version, { resetWorkspace: true });
         }, 0);
-    } else {
+        return;
+    }
+
+    if (event === "INITIAL_SESSION") {
+        authStateVersion += 1;
+        activeSessionUserId = null;
+        resetSessionUi();
         showLogin();
     }
 });
