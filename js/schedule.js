@@ -1598,13 +1598,12 @@ function renderCalendarDay(
 
 
 
+    // Tanggal tanpa event kalender tetap dapat dipilih. Hanya event yang
+    // secara eksplisit disimpan dengan is_selectable=false yang mengunci.
     const selectable =
 
-        exists &&
-
-        calendarDay.is_selectable
-        ===
-        true;
+        !exists ||
+        calendarDay.is_selectable !== false;
 
 
 
@@ -1652,7 +1651,7 @@ function renderCalendarDay(
 
                 ? "Tanggal tidak tersedia"
 
-                : "Belum ada data kalender pendidikan"
+                : "Tersedia"
         );
 
 
@@ -1809,29 +1808,13 @@ async function handleCalendarDateClick(
 
 
     /*
-       Tanggal tidak terdapat dalam
-       education_calendar.
-    */
-
-    if (!calendarDay) {
-
-        showScheduleMessage(
-            "Tanggal tersebut tidak tersedia pada kalender pendidikan."
-        );
-
-        return;
-
-    }
-
-
-    /*
-       Tanggal ada tetapi tidak selectable.
+       Hanya event kalender yang secara eksplisit tidak selectable
+       yang memblokir tanggal.
     */
 
     if (
-        calendarDay.is_selectable
-        !==
-        true
+        calendarDay &&
+        calendarDay.is_selectable === false
     ) {
 
         showUnavailableDate(
@@ -2835,20 +2818,9 @@ async function saveScheduleFromCalendar(
             dateString
         );
 
-    if (!calendarDay) {
-
-        showScheduleMessage(
-            "Tanggal tersebut tidak tersedia pada kalender pendidikan."
-        );
-
-        return;
-
-    }
-
     if (
-        calendarDay.is_selectable
-        !==
-        true
+        calendarDay &&
+        calendarDay.is_selectable === false
     ) {
 
         showUnavailableDate(

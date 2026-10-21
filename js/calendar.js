@@ -15,6 +15,26 @@ let calendarPlannerState = {
     year: new Date().getFullYear()
 };
 
+function calendarPlannerClassesForYear(yearId) {
+    return calendarPlannerState.classes.filter(item =>
+        String(item.academic_year_id) === String(yearId)
+    );
+}
+
+function calendarPlannerPopulateClassOptions(preferredClassId = calendarPlannerState.classId) {
+    const classSelect = document.getElementById("calendarPlannerClass");
+    if (!classSelect) return;
+
+    const classes = calendarPlannerClassesForYear(calendarPlannerState.yearId);
+    classSelect.innerHTML = `<option value="">Pilih Kelas</option>` + classes
+        .map(item => `<option value="${calendarPlannerEscape(item.id)}">${calendarPlannerEscape(item.name)}</option>`)
+        .join("");
+
+    const hasPreferredClass = classes.some(item => String(item.id) === String(preferredClassId));
+    calendarPlannerState.classId = hasPreferredClass ? String(preferredClassId) : "";
+    classSelect.value = calendarPlannerState.classId;
+}
+
 function calendarPlannerEscape(value) {
     if (typeof escapeHtml === "function") return escapeHtml(String(value ?? ""));
     return String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[char]));
@@ -101,6 +121,7 @@ function calendarPlannerEnsureWorkspace() {
 
     document.getElementById("calendarPlannerYear")?.addEventListener("change", async event => {
         calendarPlannerState.yearId = event.target.value;
+        calendarPlannerPopulateClassOptions();
         await calendarPlannerLoadSchedules();
     });
     document.getElementById("calendarPlannerClass")?.addEventListener("change", async event => {
@@ -124,9 +145,12 @@ function calendarPlannerEnsureWorkspace() {
 }
 
 async function calendarPlannerLoadContext() {
+    const hasExistingContext = Boolean(
+        calendarPlannerState.yearId || calendarPlannerState.classId
+    );
     const { data: years, error: yearError } = await supabaseClient.from("academic_years").select("id,name").order("name", { ascending: false });
     if (yearError) throw yearError;
-    const { data: classes, error: classError } = await supabaseClient.from("classes").select("id,name").order("name", { ascending: true });
+    const { data: classes, error: classError } = await supabaseClient.from("classes").select("id,name,academic_year_id").order("name", { ascending: true });
     if (classError) throw classError;
     calendarPlannerState.years = years || [];
     calendarPlannerState.classes = classes || [];
@@ -135,15 +159,13 @@ async function calendarPlannerLoadContext() {
     const classSelect = document.getElementById("calendarPlannerClass");
     if (!yearSelect || !classSelect) return;
     yearSelect.innerHTML = `<option value="">Pilih Tahun Pelajaran</option>` + calendarPlannerState.years.map(item => `<option value="${calendarPlannerEscape(item.id)}">${calendarPlannerEscape(item.name)}</option>`).join("");
-    classSelect.innerHTML = `<option value="">Pilih Kelas</option>` + calendarPlannerState.classes.map(item => `<option value="${calendarPlannerEscape(item.id)}">${calendarPlannerEscape(item.name)}</option>`).join("");
-
-    if (typeof scheduleContext !== "undefined") {
-        if (scheduleContext.academicYearId) calendarPlannerState.yearId = scheduleContext.academicYearId;
-        if (scheduleContext.classId) calendarPlannerState.classId = scheduleContext.classId;
-        if (scheduleContext.semester) calendarPlannerState.semester = Number(scheduleContext.semester);
+    if (!hasExistingContext && typeof scheduleContext !== "undefined") {
+        calendarPlannerState.yearId = scheduleContext.academicYearId || "";
+        calendarPlannerState.classId = scheduleContext.classId || "";
+        calendarPlannerState.semester = Number(scheduleContext.semester || 1);
     }
     yearSelect.value = calendarPlannerState.yearId || "";
-    classSelect.value = calendarPlannerState.classId || "";
+    calendarPlannerPopulateClassOptions(calendarPlannerState.classId);
     document.getElementById("calendarPlannerSemester").value = String(calendarPlannerState.semester);
 }
 
