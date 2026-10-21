@@ -1603,10 +1603,7 @@ function renderCalendarDay(
     const selectable =
 
         !exists ||
-
-        calendarDay.is_selectable
-        ===
-        true;
+        calendarDay.is_selectable !== false;
 
 
 
@@ -1817,9 +1814,7 @@ async function handleCalendarDateClick(
 
     if (
         calendarDay &&
-        calendarDay.is_selectable
-        !==
-        true
+        calendarDay.is_selectable === false
     ) {
 
         showUnavailableDate(
@@ -2825,9 +2820,7 @@ async function saveScheduleFromCalendar(
 
     if (
         calendarDay &&
-        calendarDay.is_selectable
-        !==
-        true
+        calendarDay.is_selectable === false
     ) {
 
         showUnavailableDate(
