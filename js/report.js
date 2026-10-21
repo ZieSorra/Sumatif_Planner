@@ -13,6 +13,24 @@
     const fmtDate = value => new Intl.DateTimeFormat("id-ID", {day:"2-digit", month:"short", year:"numeric"}).format(new Date(String(value).slice(0,10) + "T00:00:00"));
     const fmtTime = value => value ? String(value).slice(0,5) : "-";
 
+    function classesForYear(yearId) {
+        return state.classes.filter(item => String(item.academic_year_id) === String(yearId));
+    }
+
+    function populateClassOptions(preferredClassId = state.classId) {
+        const classSelect = document.getElementById("reportClass");
+        if (!classSelect) return;
+
+        const classes = classesForYear(state.yearId);
+        classSelect.innerHTML = '<option value="">Pilih Kelas</option>' + classes
+            .map(item => `<option value="${esc(item.id)}">${esc(item.name)}</option>`)
+            .join("");
+
+        const hasPreferredClass = classes.some(item => String(item.id) === String(preferredClassId));
+        state.classId = hasPreferredClass ? String(preferredClassId) : "";
+        classSelect.value = state.classId;
+    }
+
     function injectMenu() {
         if (document.querySelector('[data-menu="report"]')) return;
         const calendar = document.querySelector('[data-menu="calendar"]');
@@ -61,17 +79,23 @@
     }
 
     async function loadContext() {
+        const hasExistingContext = Boolean(state.yearId || state.classId);
         const { data: years, error: ye } = await supabaseClient.from("academic_years").select("id,name").order("name", {ascending:false});
         if (ye) throw ye;
-        const { data: classes, error: ce } = await supabaseClient.from("classes").select("id,name").order("name", {ascending:true});
+        const { data: classes, error: ce } = await supabaseClient.from("classes").select("id,name,academic_year_id").order("name", {ascending:true});
         if (ce) throw ce;
         state.years = years || []; state.classes = classes || [];
         const ys = document.getElementById("reportYear"), cs = document.getElementById("reportClass");
         if (!ys || !cs) return;
         ys.innerHTML = '<option value="">Pilih Tahun Pelajaran</option>' + state.years.map(x => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("");
-        cs.innerHTML = '<option value="">Pilih Kelas</option>' + state.classes.map(x => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("");
-        if (typeof scheduleContext !== "undefined") { state.yearId = scheduleContext.academicYearId || ""; state.classId = scheduleContext.classId || ""; state.semester = Number(scheduleContext.semester || 1); }
-        ys.value = state.yearId; cs.value = state.classId; document.getElementById("reportSemester").value = String(state.semester);
+        if (!hasExistingContext && typeof scheduleContext !== "undefined") {
+            state.yearId = scheduleContext.academicYearId || "";
+            state.classId = scheduleContext.classId || "";
+            state.semester = Number(scheduleContext.semester || 1);
+        }
+        ys.value = state.yearId;
+        populateClassOptions(state.classId);
+        document.getElementById("reportSemester").value = String(state.semester);
     }
 
     async function loadSchedules() {
@@ -114,7 +138,7 @@
     }
 
     function bindEvents() {
-        document.getElementById("reportYear")?.addEventListener("change", async e => { state.yearId = e.target.value; await loadSchedules(); });
+        document.getElementById("reportYear")?.addEventListener("change", async e => { state.yearId = e.target.value; populateClassOptions(); await loadSchedules(); });
         document.getElementById("reportClass")?.addEventListener("change", async e => { state.classId = e.target.value; await loadSchedules(); });
         document.getElementById("reportSemester")?.addEventListener("change", async e => { state.semester = Number(e.target.value); await loadSchedules(); });
         document.getElementById("reportRefresh")?.addEventListener("click", event => { event.preventDefault(); event.stopPropagation(); refreshReport(); });
