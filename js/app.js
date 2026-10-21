@@ -327,6 +327,39 @@ document.addEventListener("click", event => {
     }
 });
 
+// Sidebar hanya dapat dilipat pada layout mobile yang memang menyediakan
+// kelas .app-sidebar.collapsed. Desktop tidak diubah oleh kontrol ini.
+const sidebarToggle = document.getElementById("sidebarToggle");
+const appSidebar = document.querySelector(".app-sidebar");
+const mobileSidebarQuery = window.matchMedia("(max-width: 768px)");
+
+function setMobileSidebarCollapsed(collapsed) {
+    if (!appSidebar || !mobileSidebarQuery.matches) return;
+    appSidebar.classList.toggle("collapsed", collapsed);
+    if (sidebarToggle) sidebarToggle.setAttribute("aria-expanded", String(!collapsed));
+}
+
+if (sidebarToggle && appSidebar) {
+    sidebarToggle.setAttribute("aria-expanded", String(!appSidebar.classList.contains("collapsed")));
+    sidebarToggle.addEventListener("click", () => {
+        if (!mobileSidebarQuery.matches) return;
+        setMobileSidebarCollapsed(!appSidebar.classList.contains("collapsed"));
+    });
+
+    document.addEventListener("click", event => {
+        if (event.target.closest("[data-menu]") && mobileSidebarQuery.matches) {
+            setMobileSidebarCollapsed(true);
+        }
+    });
+
+    window.addEventListener("resize", () => {
+        if (!mobileSidebarQuery.matches) {
+            appSidebar.classList.remove("collapsed");
+            sidebarToggle.setAttribute("aria-expanded", "true");
+        }
+    });
+}
+
 
 // ==========================================
 // LOAD SUBJECT BOARD UI
