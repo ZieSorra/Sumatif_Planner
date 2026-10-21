@@ -1,0 +1,17 @@
+# Local environment files and credentials
+.env
+.env.*
+!.env.example
+
+# Local dependency directories
+node_modules/
+
+# Logs and temporary runtime files
+*.log
+tmp/
+temp/
+.tmp/
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db
