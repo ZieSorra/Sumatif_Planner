@@ -340,7 +340,15 @@ function setMobileSidebarCollapsed(collapsed) {
 }
 
 if (sidebarToggle && appSidebar) {
-    sidebarToggle.setAttribute("aria-expanded", String(!appSidebar.classList.contains("collapsed")));
+    function syncSidebarForViewport() {
+        const isMobile = mobileSidebarQuery.matches;
+        appSidebar.classList.toggle("collapsed", isMobile);
+        sidebarToggle.setAttribute("aria-expanded", String(!isMobile));
+    }
+
+    // Sidebar tertutup saat pertama kali dibuka di layar mobile.
+    syncSidebarForViewport();
+
     sidebarToggle.addEventListener("click", () => {
         if (!mobileSidebarQuery.matches) return;
         setMobileSidebarCollapsed(!appSidebar.classList.contains("collapsed"));
@@ -352,12 +360,7 @@ if (sidebarToggle && appSidebar) {
         }
     });
 
-    window.addEventListener("resize", () => {
-        if (!mobileSidebarQuery.matches) {
-            appSidebar.classList.remove("collapsed");
-            sidebarToggle.setAttribute("aria-expanded", "true");
-        }
-    });
+    window.addEventListener("resize", syncSidebarForViewport);
 }
 
 
