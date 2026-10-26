@@ -181,12 +181,9 @@ function closeScheduleCalendarModal() {
 function handleCalendarDateClick(dateString) {
     const calendarDay = getCalendarDay(dateString);
 
-    if (!calendarDay) {
-        showScheduleMessage("Tanggal tersebut tidak tersedia pada kalender pendidikan.");
-        return;
-    }
-
-    if (calendarDay.is_selectable !== true) {
+    // Tanpa record kalender, tanggal tersedia secara default.
+    // Hanya tanggal yang eksplisit ditandai tidak tersedia yang diblokir.
+    if (calendarDay && calendarDay.is_selectable !== true) {
         showUnavailableDate(dateString, calendarDay);
         return;
     }
