@@ -1286,7 +1286,7 @@ function renderEducationCalendar() {
    ========================================================= */
 
 function getCalendarMonthKeys() {
-    const yearMatch = String(scheduleContext.academicYearName || "").match(/(\\d{4})\\s*\\/\\s*(\\d{4})/);
+    const yearMatch = String(scheduleContext.academicYearName || "").match(/(\d{4})\s*\/\s*(\d{4})/);
     if (!yearMatch) return [];
 
     const firstYear = Number(yearMatch[1]);
