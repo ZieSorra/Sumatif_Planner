@@ -238,9 +238,19 @@ function renderScheduleInputPanel(dateString, subjectId) {
                     <label for="inputScheduleNumber">Nomor Sumatif</label>
                     <select id="inputScheduleNumber" required>
                         <option value="">Pilih Nomor</option>
-                        <option value="1">Sumatif 1</option>
-                        <option value="2">Sumatif 2</option>
-                        <option value="3">Sumatif 3</option>
+                        ${[1, 2, 3].map(number => {
+                            const existing = (scheduleSchedules || []).find(item =>
+                                String(item.subject_id) === String(subjectId) &&
+                                Number(item.sumatif_number) === number &&
+                                String(item.status || "").toLowerCase() !== "cancelled"
+                            );
+                            const shortName = (scheduleSubjects || []).find(item => String(item.id) === String(subjectId))?.short_name || subjectName;
+                            const classCode = String(scheduleContext.className || "").replace(/\s+/g, "");
+                            const subjectCode = String(shortName).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+                            const code = classCode + "-" + subjectCode + "-S" + number;
+                            const label = existing ? "Sudah terjadwal · " + code + " · " + formatDateLong(existing.date) : "Sumatif " + number + " · " + code;
+                            return '<option value="' + number + '" ' + (existing ? "disabled" : "") + '>' + escapeHtml(label) + '</option>';
+                        }).join("")}
                     </select>
                 </div>
 
