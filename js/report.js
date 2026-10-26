@@ -77,7 +77,7 @@
     async function loadSchedules() {
         if (!state.yearId || !state.classId) { state.schedules = []; render(); return; }
         const user = await getCurrentUser(); if (!user) return;
-        const { data, error } = await supabaseClient.from("sumatif_schedules").select("id,academic_year_id,semester,class_id,subject_id,teacher_id,sumatif_number,date,start_time,end_time,material,assessment_type,room,notes,status").eq("academic_year_id",state.yearId).eq("semester",state.semester).eq("class_id",state.classId).eq("teacher_id",user.id).neq("status","cancelled").order("date",{ascending:true}).order("start_time",{ascending:true});
+        const { data, error } = await supabaseClient.from("sumatif_schedules").select("id,academic_year_id,semester,class_id,subject_id,teacher_id,sumatif_number,date,start_time,end_time,material,assessment_type,room,notes,status").eq("academic_year_id",state.yearId).eq("semester",state.semester).eq("class_id",state.classId).neq("status","cancelled").order("date",{ascending:true}).order("start_time",{ascending:true});
         if (error) throw error; state.schedules = data || []; render();
     }
 
