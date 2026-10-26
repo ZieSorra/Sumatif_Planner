@@ -117,6 +117,7 @@ function calendarPlannerEnsureWorkspace() {
         const today = new Date();
         calendarPlannerState.month = today.getMonth();
         calendarPlannerState.year = today.getFullYear();
+        calendarPlannerClampMonth();
         renderCalendarPlanner();
     });
     document.getElementById("calendarPlannerPrint")?.addEventListener("click", () => window.print());
@@ -170,10 +171,49 @@ async function calendarPlannerLoadSchedules() {
     renderCalendarPlanner();
 }
 
+function calendarPlannerGetSemesterBounds() {
+    const selectedYear = (calendarPlannerState.years || []).find(item =>
+        String(item.id) === String(calendarPlannerState.yearId)
+    );
+    const match = String(selectedYear?.name || "").match(/(\\d{4})\\s*\\/\\s*(\\d{4})/);
+    const semester = Number(calendarPlannerState.semester);
+
+    if (!match || ![1, 2].includes(semester)) return null;
+
+    const firstYear = Number(match[1]);
+    const secondYear = Number(match[2]);
+
+    return semester === 1
+        ? { minYear: firstYear, minMonth: 6, maxYear: firstYear, maxMonth: 11 }
+        : { minYear: secondYear, minMonth: 0, maxYear: secondYear, maxMonth: 6 };
+}
+
+function calendarPlannerClampMonth() {
+    const bounds = calendarPlannerGetSemesterBounds();
+    if (!bounds) return;
+
+    const current = calendarPlannerState.year * 12 + calendarPlannerState.month;
+    const minimum = bounds.minYear * 12 + bounds.minMonth;
+    const maximum = bounds.maxYear * 12 + bounds.maxMonth;
+    const clamped = Math.min(maximum, Math.max(minimum, current));
+
+    calendarPlannerState.year = Math.floor(clamped / 12);
+    calendarPlannerState.month = clamped % 12;
+}
+
 function calendarPlannerChangeMonth(delta) {
-    const date = new Date(calendarPlannerState.year, calendarPlannerState.month + delta, 1);
-    calendarPlannerState.month = date.getMonth();
-    calendarPlannerState.year = date.getFullYear();
+    const bounds = calendarPlannerGetSemesterBounds();
+    if (!bounds) return;
+
+    const current = calendarPlannerState.year * 12 + calendarPlannerState.month;
+    const minimum = bounds.minYear * 12 + bounds.minMonth;
+    const maximum = bounds.maxYear * 12 + bounds.maxMonth;
+    const next = current + delta;
+
+    if (next < minimum || next > maximum) return;
+
+    calendarPlannerState.year = Math.floor(next / 12);
+    calendarPlannerState.month = next % 12;
     renderCalendarPlanner();
 }
 
@@ -186,6 +226,28 @@ function renderCalendarPlanner() {
     const grid = document.getElementById("calendarPlannerGrid");
     const title = document.getElementById("calendarPlannerMonthTitle");
     if (!grid || !title) return;
+
+    calendarPlannerClampMonth();
+    const bounds = calendarPlannerGetSemesterBounds();
+    const currentMonthIndex = calendarPlannerState.year * 12 + calendarPlannerState.month;
+    const minMonthIndex = bounds ? bounds.minYear * 12 + bounds.minMonth : null;
+    const maxMonthIndex = bounds ? bounds.maxYear * 12 + bounds.maxMonth : null;
+    const prevButton = document.getElementById("calendarPlannerPrev");
+    const nextButton = document.getElementById("calendarPlannerNext");
+
+    if (prevButton) {
+        const disabled = bounds && currentMonthIndex <= minMonthIndex;
+        prevButton.disabled = Boolean(disabled);
+        prevButton.setAttribute("aria-disabled", String(Boolean(disabled)));
+        prevButton.title = disabled ? "Sudah bulan pertama semester" : "Bulan sebelumnya";
+    }
+    if (nextButton) {
+        const disabled = bounds && currentMonthIndex >= maxMonthIndex;
+        nextButton.disabled = Boolean(disabled);
+        nextButton.setAttribute("aria-disabled", String(Boolean(disabled)));
+        nextButton.title = disabled ? "Sudah bulan terakhir semester" : "Bulan berikutnya";
+    }
+
     const monthName = new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric" }).format(new Date(calendarPlannerState.year, calendarPlannerState.month, 1));
     title.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
