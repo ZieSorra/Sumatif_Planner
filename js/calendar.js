@@ -175,7 +175,7 @@ function calendarPlannerGetSemesterBounds() {
     const selectedYear = (calendarPlannerState.years || []).find(item =>
         String(item.id) === String(calendarPlannerState.yearId)
     );
-    const match = String(selectedYear?.name || "").match(/(\\d{4})\\s*\\/\\s*(\\d{4})/);
+    const match = String(selectedYear?.name || "").match(/(\d{4})\s*\/\s*(\d{4})/);
     const semester = Number(calendarPlannerState.semester);
 
     if (!match || ![1, 2].includes(semester)) return null;
