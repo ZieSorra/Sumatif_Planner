@@ -120,7 +120,21 @@ function openScheduleCalendarModal(subjectId) {
     modal.id = "scheduleCalendarModal";
     modal.className = "modal-overlay";
 
-    const monthKeys = getCalendarMonthKeys();
+    // Bangun daftar bulan langsung dari tahun ajaran dan semester.
+    // Ini mencegah bulan di luar rentang semester ikut tampil akibat data lama.
+    const yearMatch = String(scheduleContext.academicYearName || "").match(/(\d{4})\s*\/\s*(\d{4})/);
+    let monthKeys = [];
+    if (yearMatch) {
+        const firstYear = Number(yearMatch[1]);
+        const secondYear = Number(yearMatch[2]);
+        const semester = Number(scheduleContext.semester);
+        const startYear = semester === 1 ? firstYear : secondYear;
+        const startMonth = semester === 1 ? 7 : 1;
+        const endMonth = semester === 1 ? 12 : 7;
+        for (let month = startMonth; month <= endMonth; month++) {
+            monthKeys.push(`${startYear}-${String(month).padStart(2, "0")}`);
+        }
+    }
     const subjectName = getSubjectName(scheduleBoardSubjectId);
 
     modal.innerHTML = `
