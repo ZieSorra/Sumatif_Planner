@@ -68,6 +68,10 @@ async function getDashboardSchedules() {
             "teacher_id",
             user.id
         )
+        .neq(
+            "status",
+            "cancelled"
+        )
         .order(
             "date",
             {
