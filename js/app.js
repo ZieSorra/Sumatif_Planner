@@ -370,3 +370,16 @@ document.addEventListener("click", event => {
 
     document.body.appendChild(script);
 })();
+
+// Load the Calendar Sumatif module explicitly. It is not included in index.html.
+(function loadCalendarPlanner() {
+    const script = document.createElement("script");
+    script.src = "js/calendar.js?v=3";
+    script.onload = function () {
+        console.log("[Calendar] Modul Kalender Sumatif berhasil dimuat.");
+    };
+    script.onerror = function () {
+        console.error("[Calendar] Gagal memuat js/calendar.js");
+    };
+    document.body.appendChild(script);
+})();
