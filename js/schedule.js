@@ -1246,31 +1246,21 @@ function renderEducationCalendar() {
 
 
 
-    if (
-        !scheduleCalendarDays.length
-    ) {
+    const monthKeys =
+        getCalendarMonthKeys();
 
-
+    if (!monthKeys.length) {
         grid.innerHTML = `
 
             <div class="schedule-list-empty">
 
-                Kalender pendidikan
-                belum tersedia untuk konteks ini.
+                Rentang semester tidak dapat ditentukan dari tahun pelajaran.
 
             </div>
 
         `;
-
-
         return;
-
     }
-
-
-
-    const monthKeys =
-        getCalendarMonthKeys();
 
 
 
@@ -1296,84 +1286,28 @@ function renderEducationCalendar() {
    ========================================================= */
 
 function getCalendarMonthKeys() {
+    const yearMatch = String(scheduleContext.academicYearName || "").match(/(\\d{4})\\s*\\/\\s*(\\d{4})/);
+    if (!yearMatch) return [];
 
+    const firstYear = Number(yearMatch[1]);
+    const secondYear = Number(yearMatch[2]);
+    const semester = Number(scheduleContext.semester);
+    const start = semester === 1
+        ? new Date(firstYear, 6, 1)
+        : new Date(secondYear, 0, 1);
+    const end = semester === 1
+        ? new Date(firstYear, 11, 1)
+        : new Date(secondYear, 6, 1);
 
-    const keys =
-        new Set();
-
-
-
-    scheduleCalendarDays.forEach(
-        item => {
-
-
-            const date =
-                String(
-                    item.date || ""
-                )
-                .slice(
-                    0,
-                    10
-                );
-
-
-            if (
-                date.length >= 7
-            ) {
-
-                keys.add(
-                    date.slice(
-                        0,
-                        7
-                    )
-                );
-
-            }
-
-        }
-    );
-
-
-
-    scheduleSchedules.forEach(
-        item => {
-
-
-            const date =
-                String(
-                    item.date || ""
-                )
-                .slice(
-                    0,
-                    10
-                );
-
-
-            if (
-                date.length >= 7
-            ) {
-
-                keys.add(
-                    date.slice(
-                        0,
-                        7
-                    )
-                );
-
-            }
-
-        }
-    );
-
-
-
-    return [
-
-        ...keys
-
-    ]
-    .sort();
-
+    const keys = [];
+    const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+    while (cursor <= end) {
+        keys.push(
+            `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`
+        );
+        cursor.setMonth(cursor.getMonth() + 1);
+    }
+    return keys;
 }
 
 
@@ -1591,25 +1525,12 @@ function renderCalendarDay(
 
 
 
-    const exists =
-        Boolean(
-            calendarDay
-        );
+    const exists = Boolean(calendarDay);
 
-
-
-    const selectable =
-
-        exists &&
-
-        calendarDay.is_selectable
-        ===
-        true;
-
-
-
-    const blocked =
-        !selectable;
+    // Tanpa baris kalender berarti tersedia secara default.
+    // Hanya tanggal yang secara eksplisit ditandai tidak tersedia yang diblokir.
+    const selectable = !exists || calendarDay.is_selectable === true;
+    const blocked = !selectable;
 
 
 
@@ -1642,18 +1563,8 @@ function renderCalendarDay(
 
 
     const title =
-
-        calendarDay?.title
-
-        ||
-
-        (
-            exists
-
-                ? "Tanggal tidak tersedia"
-
-                : "Belum ada data kalender pendidikan"
-        );
+        calendarDay?.title ||
+        (exists ? "Tanggal tidak tersedia" : "Tanggal tersedia");
 
 
 
@@ -1809,29 +1720,13 @@ async function handleCalendarDateClick(
 
 
     /*
-       Tanggal tidak terdapat dalam
-       education_calendar.
-    */
-
-    if (!calendarDay) {
-
-        showScheduleMessage(
-            "Tanggal tersebut tidak tersedia pada kalender pendidikan."
-        );
-
-        return;
-
-    }
-
-
-    /*
-       Tanggal ada tetapi tidak selectable.
+       Tanggal tanpa baris education_calendar tersedia secara default.
+       Blokir hanya jika admin secara eksplisit menandainya tidak tersedia.
     */
 
     if (
-        calendarDay.is_selectable
-        !==
-        true
+        calendarDay &&
+        calendarDay.is_selectable !== true
     ) {
 
         showUnavailableDate(
