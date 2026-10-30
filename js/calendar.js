@@ -26,40 +26,54 @@ function calendarPlannerEnsureStyles() {
     const style = document.createElement("style");
     style.id = "calendarPlannerStyles";
     style.textContent = `
-        .calendar-planner{padding:22px;max-width:1200px;margin:0 auto}
-        .calendar-planner-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
-        .calendar-planner-header h2{margin:0 0 5px;font-size:22px}
-        .calendar-planner-header p{margin:0;color:#667085;font-size:13px}
+        .calendar-planner{padding:18px;max-width:1280px;margin:0 auto}
+        .calendar-planner-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px}
+        .calendar-planner-header h2{margin:0 0 5px;font-size:21px}
+        .calendar-planner-header p{margin:0;color:#667085;font-size:12px}
         .calendar-planner-actions{display:flex;gap:8px;flex-wrap:wrap}
-        .calendar-planner-filters{display:grid;grid-template-columns:1.2fr 1fr .8fr;gap:14px;background:#fff;border:1px solid #e4e7ec;border-radius:14px;padding:16px;margin-bottom:18px}
-        .calendar-planner-filter label{display:block;font-size:12px;font-weight:600;margin-bottom:6px;color:#344054}
-        .calendar-planner-filter select{width:100%;min-height:40px;border:1px solid #d0d5dd;border-radius:8px;padding:0 10px;background:#fff}
-        .calendar-planner-card{background:#fff;border:1px solid #e4e7ec;border-radius:14px;overflow:hidden}
-        .calendar-planner-toolbar{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid #eaecf0}
-        .calendar-planner-toolbar h3{margin:0;font-size:18px}
-        .calendar-planner-nav{display:flex;gap:6px}
-        .calendar-planner-nav button{width:34px;height:34px;border:1px solid #d0d5dd;border-radius:8px;background:#fff;cursor:pointer}
+        .calendar-planner-filters{display:grid;grid-template-columns:1.2fr 1fr .8fr;gap:12px;background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:13px;margin-bottom:14px}
+        .calendar-planner-filter label{display:block;font-size:11px;font-weight:600;margin-bottom:5px;color:#344054}
+        .calendar-planner-filter select{width:100%;min-height:36px;border:1px solid #d0d5dd;border-radius:8px;padding:0 10px;background:#fff;font-size:12px}
+        .calendar-planner-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(245px,.85fr);gap:13px;align-items:start}
+        .calendar-planner-card,.calendar-planner-events-card{background:#fff;border:1px solid #e4e7ec;border-radius:12px;overflow:hidden;min-width:0}
+        .calendar-planner-toolbar{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;border-bottom:1px solid #eaecf0}
+        .calendar-planner-toolbar h3{margin:0;font-size:15px}
+        .calendar-planner-nav{display:flex;gap:5px}
+        .calendar-planner-nav button{width:30px;height:30px;border:1px solid #d0d5dd;border-radius:7px;background:#fff;cursor:pointer}
+        .calendar-planner-nav button:disabled{opacity:.4;cursor:not-allowed}
         .calendar-planner-grid{display:grid;grid-template-columns:repeat(7,1fr)}
-        .calendar-planner-weekday{padding:10px 8px;text-align:center;font-size:11px;font-weight:700;color:#667085;background:#f9fafb;border-bottom:1px solid #eaecf0}
-        .calendar-planner-day{min-height:105px;border-right:1px solid #eaecf0;border-bottom:1px solid #eaecf0;padding:8px;background:#fff}
+        .calendar-planner-weekday{padding:7px 3px;text-align:center;font-size:10px;font-weight:700;color:#667085;background:#f9fafb;border-bottom:1px solid #eaecf0}
+        .calendar-planner-day{min-height:74px;border-right:1px solid #eaecf0;border-bottom:1px solid #eaecf0;padding:5px;background:#fff;min-width:0}
         .calendar-planner-day:nth-child(7n){border-right:0}
         .calendar-planner-day.muted{background:#f9fafb;color:#98a2b3}
         .calendar-planner-day.today{box-shadow:inset 0 3px 0 #175cd3}
-        .calendar-planner-day-number{font-size:12px;font-weight:700;margin-bottom:6px}
-        .calendar-planner-event{display:block;border-radius:6px;padding:5px 6px;margin-bottom:4px;background:#eff8ff;border-left:3px solid #175cd3;font-size:10px;line-height:1.35;overflow:hidden}
+        .calendar-planner-day-number{font-size:10px;font-weight:700;margin-bottom:4px}
+        .calendar-planner-event{display:block;border-radius:4px;padding:3px 4px;margin-bottom:3px;background:#eff8ff;border-left:2px solid #175cd3;font-size:8px;line-height:1.25;overflow:hidden}
         .calendar-planner-event.practical{background:#ecfdf3;border-left-color:#039855}
-        .calendar-planner-event strong{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .calendar-planner-event strong{display:block;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .calendar-planner-event.academic-holiday{background:#fff1f2;border-left-color:#e11d48}
         .calendar-planner-event.academic-effective{background:#ecfdf3;border-left-color:#059669}
         .calendar-planner-event.academic-school{background:#fff7e6;border-left-color:#d97706}
-        .calendar-planner-legend{display:flex;gap:12px;flex-wrap:wrap;padding:10px 14px;background:#f8faff;border-top:1px solid #eaecf0;font-size:11px;color:#667085}
-        .calendar-planner-event span{display:block;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .calendar-planner-empty{text-align:center;padding:45px 20px;color:#667085}
-        .calendar-planner-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-        .calendar-planner-stat{border:1px solid #e4e7ec;border-radius:12px;padding:14px;background:#fff}
-        .calendar-planner-stat span{display:block;color:#667085;font-size:11px}.calendar-planner-stat strong{display:block;font-size:20px;margin-top:4px}
-        @media(max-width:700px){.calendar-planner{padding:14px}.calendar-planner-header{display:block}.calendar-planner-actions{margin-top:12px}.calendar-planner-filters{grid-template-columns:1fr}.calendar-planner-day{min-height:80px;padding:5px}.calendar-planner-event{padding:4px}.calendar-planner-summary{grid-template-columns:1fr}.calendar-planner-event span{display:none}}
-        @media print{body *{visibility:hidden!important}.calendar-planner,.calendar-planner *{visibility:visible!important}.calendar-planner{position:absolute;left:0;top:0;width:100%;max-width:none}.calendar-planner-actions,.calendar-planner-filters,.calendar-planner-nav{display:none!important}.calendar-planner-card{border:0}.calendar-planner-day{min-height:95px}}
+        .calendar-planner-event span{display:block;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:7px}
+        .calendar-planner-legend{display:flex;gap:9px;flex-wrap:wrap;padding:8px 10px;background:#f8faff;border-top:1px solid #eaecf0;font-size:9px;color:#667085}
+        .calendar-planner-events-head{padding:12px 13px;border-bottom:1px solid #eaecf0}
+        .calendar-planner-events-head h3{margin:0 0 3px;font-size:14px}
+        .calendar-planner-events-head p{margin:0;color:#667085;font-size:9px}
+        .calendar-planner-event-list{display:flex;flex-direction:column;gap:7px;padding:10px;max-height:475px;overflow:auto}
+        .calendar-planner-agenda-item{padding:9px;border:1px solid #edf0f5;border-left:3px solid #d97706;border-radius:8px;background:#fff;font-size:10px}
+        .calendar-planner-agenda-item.sumatif{border-left-color:#4f46e5}
+        .calendar-planner-agenda-item.holiday{border-left-color:#e11d48}
+        .calendar-planner-agenda-date{display:block;margin-bottom:4px;color:#667085;font-size:9px;font-weight:700}
+        .calendar-planner-agenda-item strong{display:block;color:#172033;font-size:10px;line-height:1.4}
+        .calendar-planner-agenda-item small{display:block;margin-top:3px;color:#667085;font-size:9px;line-height:1.4}
+        .calendar-planner-empty{text-align:center;padding:26px 14px;color:#667085;font-size:10px}
+        .calendar-planner-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:13px}
+        .calendar-planner-stat{border:1px solid #e4e7ec;border-radius:10px;padding:11px;background:#fff}
+        .calendar-planner-stat span{display:block;color:#667085;font-size:10px}.calendar-planner-stat strong{display:block;font-size:18px;margin-top:3px}
+        @media(max-width:850px){.calendar-planner-layout{grid-template-columns:1fr}.calendar-planner-event-list{max-height:260px}}
+        @media(max-width:700px){.calendar-planner{padding:12px}.calendar-planner-header{display:block}.calendar-planner-actions{margin-top:10px}.calendar-planner-filters{grid-template-columns:1fr}.calendar-planner-day{min-height:62px;padding:4px}.calendar-planner-event{padding:2px}.calendar-planner-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.calendar-planner-event span{display:none}}
+        @media(max-width:430px){.calendar-planner-day{min-height:52px}.calendar-planner-event strong{font-size:7px}.calendar-planner-summary{gap:7px}}
+        @media print{body *{visibility:hidden!important}.calendar-planner,.calendar-planner *{visibility:visible!important}.calendar-planner{position:absolute;left:0;top:0;width:100%;max-width:none}.calendar-planner-actions,.calendar-planner-filters,.calendar-planner-nav{display:none!important}.calendar-planner-layout{grid-template-columns:1.6fr .9fr}.calendar-planner-card,.calendar-planner-events-card{border:1px solid #ddd}.calendar-planner-day{min-height:75px}}
     `;
     document.head.appendChild(style);
 }
@@ -88,14 +102,22 @@ function calendarPlannerEnsureWorkspace() {
             <div class="calendar-planner-filter"><label for="calendarPlannerClass">Kelas</label><select id="calendarPlannerClass"><option value="">Pilih Kelas</option></select></div>
             <div class="calendar-planner-filter"><label for="calendarPlannerSemester">Semester</label><select id="calendarPlannerSemester"><option value="1">Ganjil</option><option value="2">Genap</option></select></div>
         </div>
-        <div class="calendar-planner-card">
-            <div class="calendar-planner-toolbar">
-                <h3 id="calendarPlannerMonthTitle">-</h3>
-                <div class="calendar-planner-nav"><button type="button" id="calendarPlannerPrev" aria-label="Bulan sebelumnya">‹</button><button type="button" id="calendarPlannerNext" aria-label="Bulan berikutnya">›</button></div>
+        <div class="calendar-planner-layout">
+            <div>
+                <div class="calendar-planner-card">
+                    <div class="calendar-planner-toolbar">
+                        <h3 id="calendarPlannerMonthTitle">-</h3>
+                        <div class="calendar-planner-nav"><button type="button" id="calendarPlannerPrev" aria-label="Bulan sebelumnya">‹</button><button type="button" id="calendarPlannerNext" aria-label="Bulan berikutnya">›</button></div>
+                    </div>
+                    <div id="calendarPlannerGrid"></div>
+                    <div class="calendar-planner-legend"><span>🟢 Hari efektif</span><span>🔴 Libur</span><span>🟠 Kegiatan sekolah</span><span>🔵 Sumatif</span></div>
+                </div>
             </div>
-            <div id="calendarPlannerGrid"></div>
+            <aside class="calendar-planner-events-card">
+                <div class="calendar-planner-events-head"><h3>Event & Agenda</h3><p id="calendarPlannerEventMonth">Agenda pada bulan terpilih</p></div>
+                <div id="calendarPlannerEventList" class="calendar-planner-event-list"><div class="calendar-planner-empty">Memuat agenda...</div></div>
+            </aside>
         </div>
-        <div class="calendar-planner-legend"><span>🟢 Hari efektif / KBM</span><span>🔴 Libur / tidak tersedia</span><span>🟠 Kegiatan sekolah</span><span>🔵 Jadwal sumatif</span></div>
         <div class="calendar-planner-summary">
             <div class="calendar-planner-stat"><span>Total Jadwal</span><strong id="calendarPlannerTotal">0</strong></div>
             <div class="calendar-planner-stat"><span>Tes Tertulis</span><strong id="calendarPlannerWritten">0</strong></div>
@@ -303,6 +325,36 @@ function renderCalendarPlanner() {
     }
     while (cells.length < 49) cells.push(`<div class="calendar-planner-day muted"></div>`);
     grid.innerHTML = `<div class="calendar-planner-grid">${cells.join("")}</div>`;
+
+    const monthEvents = [
+        ...educationEvents.filter(item => {
+            const d = String(item.date || "").slice(0,10);
+            return d.startsWith(`${calendarPlannerState.year}-${String(calendarPlannerState.month + 1).padStart(2,"0")}-`);
+        }).map(item => ({
+            date: item.date, title: item.title || item.day_type || "Agenda Pendidikan",
+            detail: item.day_type || "Kegiatan sekolah",
+            kind: /libur|cuti|tidak tersedia/i.test(String(item.day_type || "")) ? "holiday" : "academic"
+        })),
+        ...schedules.filter(item => {
+            const d = String(item.date || "").slice(0,10);
+            return d.startsWith(`${calendarPlannerState.year}-${String(calendarPlannerState.month + 1).padStart(2,"0")}-`);
+        }).map(item => ({
+            date: item.date, title: `${calendarPlannerSubjectName(item.subject_id)} — Sumatif ${item.sumatif_number}`,
+            detail: `${item.assessment_type === "practical" ? "Praktik" : "Tertulis"}${item.start_time ? " · " + String(item.start_time).slice(0,5) : ""}`,
+            kind: "sumatif"
+        }))
+    ].sort((a,b) => String(a.date).localeCompare(String(b.date)));
+
+    const agendaList = document.getElementById("calendarPlannerEventList");
+    const agendaMonth = document.getElementById("calendarPlannerEventMonth");
+    if (agendaMonth) agendaMonth.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+    if (agendaList) {
+        agendaList.innerHTML = monthEvents.length ? monthEvents.map(item => {
+            const date = new Date(String(item.date).slice(0,10) + "T00:00:00");
+            const dateLabel = date.toLocaleDateString("id-ID", { weekday:"short", day:"numeric", month:"short" });
+            return `<article class="calendar-planner-agenda-item ${item.kind}"><span class="calendar-planner-agenda-date">${calendarPlannerEscape(dateLabel)}</span><strong>${calendarPlannerEscape(item.title)}</strong><small>${calendarPlannerEscape(item.detail)}</small></article>`;
+        }).join("") : '<div class="calendar-planner-empty">Belum ada event atau agenda pada bulan ini.</div>';
+    }
 
     document.getElementById("calendarPlannerTotal").textContent = schedules.length;
     document.getElementById("calendarPlannerWritten").textContent = schedules.filter(item => item.assessment_type === "written").length;
