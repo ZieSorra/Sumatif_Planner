@@ -21,56 +21,41 @@
         <section id="loginPage" class="page">
             <div class="login-card">
                 <div class="login-quote-banner" aria-label="Kutipan Nelson Mandela">
-                    <div class="quote-mark" aria-hidden="true">“</div>
-                    <blockquote>
-                        Education is the most powerful weapon which you can use to change the world.
-                    </blockquote>
-                    <p class="quote-author">— Nelson Mandela</p>
-                    <p class="quote-translation">
-                        Pendidikan adalah senjata paling ampuh yang dapat digunakan untuk mengubah dunia.
-                    </p>
+                    <p class="login-quote">“Education is the most powerful weapon which you can use to change the world.”</p>
+                    <span class="quote-author">— Nelson Mandela</span>
+                    <div class="login-brand-mark" aria-hidden="true"><span>✓</span></div>
                 </div>
-
                 <div class="login-card-content">
                     <div class="login-heading">
                         <h1>Sumatif Planner</h1>
                         <p class="subtitle">Kelola jadwal sumatif dengan lebih mudah.</p>
                     </div>
-
                     <form id="loginForm">
                         <div class="form-group">
-                            <label for="email">Email</label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                autocomplete="username"
-                                required
-                                placeholder="Masukkan email"
-                            >
+                            <div class="login-label-row"><label for="email">Alamat Email</label><span>Akun Sekolah</span></div>
+                            <div class="login-input-wrap">
+                                <span class="input-symbol" aria-hidden="true">@</span>
+                                <input type="email" id="email" name="email" autocomplete="username" required placeholder="Masukkan alamat email">
+                            </div>
                         </div>
-
                         <div class="form-group">
-                            <label for="password">Password</label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                autocomplete="current-password"
-                                required
-                                placeholder="Masukkan password"
-                            >
+                            <div class="login-label-row"><label for="password">Kata Sandi</label></div>
+                            <div class="login-input-wrap">
+                                <span class="input-symbol password-symbol" aria-hidden="true">▣</span>
+                                <input type="password" id="password" name="password" autocomplete="current-password" required placeholder="Masukkan kata sandi">
+                                <button type="button" id="togglePassword" class="password-toggle" aria-label="Tampilkan kata sandi" aria-pressed="false">◉</button>
+                            </div>
                         </div>
-
-                        <button type="submit" class="btn-primary">
-                            Masuk
-                        </button>
+                        <button type="submit" class="btn-primary login-submit">Masuk <span aria-hidden="true">→</span></button>
                     </form>
-
                     <div id="loginMessage" role="status" aria-live="polite"></div>
-                    <p class="login-support">Gunakan akun yang telah diberikan oleh administrator.</p>
+                    <div class="login-security-row">
+                        <span><b aria-hidden="true">◆</b> Akses akun sekolah</span><i></i>
+                        <span><b aria-hidden="true">✦</b> Sumatif Planner</span>
+                    </div>
                 </div>
             </div>
+            <p class="login-help">Kendala akses akun? Hubungi Tim Kurikulum Sekolah.</p>
         </section>
 
         <section id="appPage" class="page hidden">
