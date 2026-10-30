@@ -19,58 +19,59 @@
         ========================== -->
 
         <section id="loginPage" class="page">
-
             <div class="login-card">
+                <div class="login-quote-banner" aria-label="Kutipan Nelson Mandela">
+                    <div class="quote-mark" aria-hidden="true">“</div>
+                    <blockquote>
+                        Education is the most powerful weapon which you can use to change the world.
+                    </blockquote>
+                    <p class="quote-author">— Nelson Mandela</p>
+                    <p class="quote-translation">
+                        Pendidikan adalah senjata paling ampuh yang dapat digunakan untuk mengubah dunia.
+                    </p>
+                </div>
 
-                <h1>Sumatif Planner</h1>
-
-                <p class="subtitle">
-                    Kelola jadwal sumatif dengan lebih mudah.
-                </p>
-
-                <form id="loginForm">
-
-                    <div class="form-group">
-                        <label for="email">Email</label>
-
-                        <input
-                            type="email"
-                            id="email"
-                            required
-                            placeholder="Masukkan email"
-                        >
+                <div class="login-card-content">
+                    <div class="login-heading">
+                        <h1>Sumatif Planner</h1>
+                        <p class="subtitle">Kelola jadwal sumatif dengan lebih mudah.</p>
                     </div>
 
-                    <div class="form-group">
-                        <label for="password">Password</label>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                autocomplete="username"
+                                required
+                                placeholder="Masukkan email"
+                            >
+                        </div>
 
-                        <input
-                            type="password"
-                            id="password"
-                            required
-                            placeholder="Masukkan password"
-                        >
-                    </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                autocomplete="current-password"
+                                required
+                                placeholder="Masukkan password"
+                            >
+                        </div>
 
-                    <button
-                        type="submit"
-                        class="btn-primary"
-                    >
-                        Masuk
-                    </button>
+                        <button type="submit" class="btn-primary">
+                            Masuk
+                        </button>
+                    </form>
 
-                </form>
-
-                <div id="loginMessage"></div>
-
+                    <div id="loginMessage" role="status" aria-live="polite"></div>
+                    <p class="login-support">Gunakan akun yang telah diberikan oleh administrator.</p>
+                </div>
             </div>
-
         </section>
-
-
-        <!-- =========================
-             APPLICATION
-        ========================== -->
 
         <section id="appPage" class="page hidden">
 
