@@ -2662,3 +2662,38 @@ body {
         transition: none;
     }
 }
+
+/* COMPACT STITCH-INSPIRED LOGIN */
+#loginPage{position:relative;isolation:isolate;overflow:hidden;flex-direction:column;gap:12px;padding:28px 16px;background:radial-gradient(ellipse at 50% 35%,rgba(220,226,255,.48),transparent 54%),#f7f9fc}
+#loginPage:before,#loginPage:after{content:"";position:absolute;z-index:-1;width:260px;height:260px;border-radius:50%;background:rgba(79,70,229,.035);filter:blur(4px);pointer-events:none}
+#loginPage:before{top:-150px;left:8%}#loginPage:after{right:-120px;bottom:-150px}
+#loginPage .login-card{width:min(100%,420px);max-width:420px;padding:0;overflow:visible;border:1px solid #e5e9f2;border-radius:13px;background:#fff;box-shadow:0 12px 35px rgba(31,48,100,.11)}
+.login-quote-banner{position:relative;min-height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 24px 17px;border-radius:12px 12px 0 0;color:#fff;text-align:center;background:linear-gradient(110deg,#3525cd 0%,#4f46e5 55%,#0062bd 100%);overflow:visible}
+.login-quote-banner:before{content:"";position:absolute;inset:0;border-radius:inherit;opacity:.18;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,.65) .7px,transparent .7px),linear-gradient(150deg,transparent 40%,rgba(255,255,255,.18) 40.2%,transparent 40.7%);background-size:13px 13px,100% 100%}
+.login-quote{position:relative;max-width:350px;margin:0;font-family:Georgia,"Times New Roman",serif;font-size:10px;font-weight:600;line-height:1.35}
+.quote-author{position:relative;margin-top:3px;color:rgba(255,255,255,.88);font-size:9px;font-weight:600}
+.login-brand-mark{position:absolute;z-index:2;left:50%;bottom:-17px;width:38px;height:38px;display:grid;place-items:center;transform:translateX(-50%);border:3px solid #fff;border-radius:11px;background:#4f46e5;box-shadow:0 3px 8px rgba(28,35,80,.2)}
+.login-brand-mark span{width:19px;height:19px;display:grid;place-items:center;border-radius:5px;background:#fff;color:#4f46e5;font-size:13px;font-weight:900}
+.login-card-content{padding:24px 28px 18px}
+.login-heading{margin-bottom:20px;padding-top:0;text-align:center}
+.login-heading h1{margin:0 0 4px;color:#111827;font-size:21px;font-weight:750;letter-spacing:-.45px}
+.login-heading .subtitle{max-width:260px;margin:0 auto;color:#64748b;font-size:10px;line-height:1.45}
+.login-card .form-group{margin-bottom:11px}
+.login-label-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:5px}
+.login-label-row label{margin:0!important;color:#1e293b!important;font-size:10px!important;font-weight:650!important}
+.login-label-row span{color:#64748b;font-size:9px}
+.login-input-wrap{position:relative;display:flex;align-items:center}
+.login-card .login-input-wrap input{width:100%;min-height:38px;padding:9px 34px 9px 32px;border:1px solid #edf0fa;border-radius:7px;background:#f0f4ff;color:#1e293b;font:inherit;font-size:10px;box-shadow:none}
+.login-card .login-input-wrap input:focus{border-color:#6257e8;background:#fff;box-shadow:0 0 0 3px rgba(79,70,229,.10)}
+.input-symbol{position:absolute;left:10px;z-index:1;color:#312e81;font-size:14px;font-weight:700;pointer-events:none}
+.password-symbol{font-size:12px}
+.password-toggle{position:absolute;right:5px;width:28px;height:28px;padding:0;border-radius:5px;background:transparent;color:#312e81;font-size:14px}
+.password-toggle:hover{background:rgba(79,70,229,.08)}
+.login-card .btn-primary.login-submit{min-height:38px;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;border-radius:6px;background:#4f46e5;box-shadow:0 3px 7px rgba(79,70,229,.2);font-size:11px}
+.login-card .btn-primary.login-submit:hover{background:#4338ca;transform:translateY(-1px)}
+#loginMessage{min-height:12px;margin-top:7px;color:#b42318;font-size:10px;line-height:1.4}
+.login-security-row{display:flex;align-items:center;justify-content:space-around;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid #f1f3f8;color:#64748b;font-size:9px;text-align:center}
+.login-security-row span{display:flex;align-items:center;gap:5px}.login-security-row b{color:#4f46e5;font-size:10px}.login-security-row i{width:1px;height:17px;background:#e2e8f0}
+.login-help{position:relative;margin:0;color:#64748b;font-size:9px;text-align:center}
+@media(max-width:480px){#loginPage{padding:22px 14px}#loginPage .login-card-content{padding:23px 22px 16px}.login-quote-banner{min-height:70px;padding-left:18px;padding-right:18px}}
+@media(prefers-reduced-motion:reduce){.login-card .btn-primary{transition:none}}
