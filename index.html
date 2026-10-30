@@ -184,119 +184,104 @@
 
             <main class="app-content">
 
-                <!-- WELCOME -->
+                <!-- DASHBOARD -->
+                <section class="dashboard-home dashboard-page">
+                    <section class="dashboard-welcome">
+                        <div class="dashboard-welcome-copy">
+                            <span class="dashboard-eyebrow"><i></i><span id="dashboardSemesterLabel">SUMATIF PLANNER</span><b>•</b><span>KURIKULUM MERDEKA</span></span>
+                            <h2>Selamat datang, <span id="welcomeName"></span> 👋</h2>
+                            <p>Pantau jadwal sumatif, persiapkan asesmen, dan pastikan seluruh kegiatan berjalan sesuai rencana.</p>
+                        </div>
+                        <div class="dashboard-today">
+                            <span>HARI INI</span>
+                            <strong id="dashboardToday">—</strong>
+                            <button type="button" id="dashboardRefreshBtn" aria-label="Muat ulang dashboard" title="Muat ulang">↻</button>
+                        </div>
+                        <span class="welcome-orb welcome-orb-one"></span>
+                        <span class="welcome-orb welcome-orb-two"></span>
+                    </section>
 
-                <section class="welcome-card dashboard-home">
+                    <section class="dashboard-summary" aria-label="Ringkasan jadwal">
+                        <article class="summary-card">
+                            <div><span class="summary-label">Total Jadwal</span><div class="summary-number"><strong id="totalSchedule">0</strong><span>jadwal</span></div></div>
+                            <span class="summary-icon summary-icon-purple">▤</span>
+                            <p><span class="summary-dot purple"></span>Seluruh jadwal aktif Anda</p>
+                        </article>
+                        <article class="summary-card">
+                            <div><span class="summary-label">Jadwal Bulan Ini</span><div class="summary-number"><strong id="monthlySchedule">0</strong><span>pelaksanaan</span></div></div>
+                            <span class="summary-icon summary-icon-blue">▦</span>
+                            <p><span class="summary-dot blue"></span><span id="dashboardMonthLabel">Bulan berjalan</span></p>
+                        </article>
+                        <article class="summary-card">
+                            <div><span class="summary-label">Ujian Tertulis</span><div class="summary-number"><strong id="writtenSchedule">0</strong><span>jadwal</span></div></div>
+                            <span class="summary-icon summary-icon-green">▧</span>
+                            <p><span class="summary-dot green"></span>Asesmen tertulis</p>
+                        </article>
+                        <article class="summary-card">
+                            <div><span class="summary-label">Ujian Praktik</span><div class="summary-number"><strong id="practicalSchedule">0</strong><span>jadwal</span></div></div>
+                            <span class="summary-icon summary-icon-orange">⚗</span>
+                            <p><span class="summary-dot orange"></span>Asesmen praktik</p>
+                        </article>
+                    </section>
 
-                    <h2>
-                        Selamat datang, <span id="welcomeName"></span> 👋
-                    </h2>
+                    <div class="dashboard-grid">
+                        <div class="dashboard-main-column">
+                            <section class="dashboard-panel">
+                                <div class="dashboard-panel-heading">
+                                    <div class="dashboard-heading-icon">▣</div>
+                                    <div><h3>Jadwal Terdekat</h3><p>Agenda sumatif yang akan datang dan perlu dipersiapkan.</p></div>
+                                    <button type="button" class="dashboard-link" data-menu="schedule">Lihat Semua <span>→</span></button>
+                                </div>
+                                <div id="latestScheduleList" class="latest-schedule-list">
+                                    <div class="latest-loading">Memuat jadwal...</div>
+                                </div>
+                            </section>
 
-                    <p>
-                        Berikut adalah jadwal sumatif Anda.
-                    </p>
+                            <section class="dashboard-panel distribution-panel">
+                                <div class="dashboard-panel-heading distribution-heading">
+                                    <div class="dashboard-heading-icon">◉</div>
+                                    <div><h3>Distribusi Jenis Penilaian</h3><p>Perbandingan jadwal tertulis dan praktik pada data Anda.</p></div>
+                                </div>
+                                <div class="distribution-content">
+                                    <div class="distribution-chart-wrap">
+                                        <div class="distribution-chart" id="assessmentChart" role="img" aria-label="Grafik distribusi jenis penilaian">
+                                            <div><strong id="assessmentChartTotal">0</strong><span>Total Jadwal</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="distribution-legend">
+                                        <div class="distribution-legend-item"><span class="legend-swatch written"></span><div><strong>Ujian Tertulis</strong><small id="writtenPercent">0% dari jadwal</small></div><b id="writtenCount">0</b></div>
+                                        <div class="distribution-legend-item"><span class="legend-swatch practical"></span><div><strong>Ujian Praktik</strong><small id="practicalPercent">0% dari jadwal</small></div><b id="practicalCount">0</b></div>
+                                        <p class="distribution-note" id="distributionNote">Ringkasan diperbarui berdasarkan jadwal aktif.</p>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
 
+                        <aside class="dashboard-side-column">
+                            <section class="dashboard-panel context-panel">
+                                <div class="dashboard-panel-heading">
+                                    <div class="dashboard-heading-icon">⚙</div>
+                                    <div><h3>Konteks Pembelajaran</h3><p>Kelola pilihan tahun ajaran, kelas, dan semester.</p></div>
+                                </div>
+                                <p class="context-description">Pilih konteks pembelajaran untuk melihat kalender pendidikan dan jadwal pada kelas yang dituju.</p>
+                                <button type="button" class="context-action" data-menu="schedule">Buka Jadwal Sumatif <span>→</span></button>
+                                <div class="context-footnote"><span>i</span><p>Data dashboard menampilkan jadwal aktif yang dibuat oleh akun Anda.</p></div>
+                            </section>
+
+                            <section class="dashboard-panel guide-panel">
+                                <div class="dashboard-panel-heading">
+                                    <div class="dashboard-heading-icon">☷</div>
+                                    <div><h3>Panduan Asesmen</h3><p>Pengingat singkat untuk persiapan.</p></div>
+                                </div>
+                                <ul class="assessment-guide">
+                                    <li><span>✓</span><p>Siapkan instrumen dan materi sebelum jadwal sumatif dilaksanakan.</p></li>
+                                    <li><span>✓</span><p>Pastikan waktu dan ruang pelaksanaan sudah sesuai kebutuhan.</p></li>
+                                    <li><span>✓</span><p>Perbarui jadwal apabila terdapat perubahan yang telah disepakati.</p></li>
+                                </ul>
+                            </section>
+                        </aside>
+                    </div>
                 </section>
-
-
-                <!-- SUMMARY -->
-
-                <section class="dashboard-summary dashboard-home">
-
-                    <div class="summary-card">
-
-                        <span class="summary-label">
-                            Total Jadwal
-                        </span>
-
-                        <strong
-                            id="totalSchedule"
-                            class="summary-value"
-                        >
-                            0
-                        </strong>
-
-                    </div>
-
-
-                    <div class="summary-card">
-
-                        <span class="summary-label">
-                            Jadwal Bulan Ini
-                        </span>
-
-                        <strong
-                            id="monthlySchedule"
-                            class="summary-value"
-                        >
-                            0
-                        </strong>
-
-                    </div>
-
-
-                    <div class="summary-card">
-
-                        <span class="summary-label">
-                            Tertulis
-                        </span>
-
-                        <strong
-                            id="writtenSchedule"
-                            class="summary-value"
-                        >
-                            0
-                        </strong>
-
-                    </div>
-
-
-                    <div class="summary-card">
-
-                        <span class="summary-label">
-                            Praktik
-                        </span>
-
-                        <strong
-                            id="practicalSchedule"
-                            class="summary-value"
-                        >
-                            0
-                        </strong>
-
-                    </div>
-
-                </section>
-<section class="dashboard-latest dashboard-home">
-
-    <div class="section-header">
-        <div>
-            <h2>Jadwal Terdekat</h2>
-            <p>
-                Jadwal sumatif yang akan datang.
-            </p>
-        </div>
-
-        <button
-            type="button"
-            class="secondary-button"
-            data-menu="schedule"
-        >
-            Lihat Semua
-        </button>
-    </div>
-
-    <div
-        id="latestScheduleList"
-        class="latest-schedule-list"
-    >
-        <div class="latest-loading">
-            Memuat jadwal...
-        </div>
-    </div>
-
-</section>
-                
 
                     <!-- =========================
      JADWAL SUMATIF
