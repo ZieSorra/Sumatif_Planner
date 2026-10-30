@@ -1,42 +1,15 @@
 // ==========================================
-// SUMATIF PLANNER
-// dashboard.js FINAL
-// ==========================================
-
-
-// ==========================================
-// GET DASHBOARD SCHEDULES
+// SUMATIF PLANNER — DASHBOARD
+// Data bersumber dari Supabase; tidak memakai data contoh.
 // ==========================================
 
 async function getDashboardSchedules() {
+    const user = await getCurrentUser();
+    if (!user) throw new Error("User belum login.");
 
-
-    const user =
-        await getCurrentUser();
-
-
-
-    if (!user) {
-
-        throw new Error(
-            "User belum login."
-        );
-
-    }
-
-
-
-    const {
-        data,
-        error
-    }
-    =
-    await supabaseClient
-        .from(
-            "sumatif_schedules"
-        )
-        .select(
-            `
+    const { data, error } = await supabaseClient
+        .from("sumatif_schedules")
+        .select(`
             id,
             sumatif_number,
             date,
@@ -47,555 +20,162 @@ async function getDashboardSchedules() {
             room,
             notes,
             status,
+            academic_years ( name ),
+            classes ( name, level ),
+            subjects ( name, short_name )
+        `)
+        .eq("teacher_id", user.id)
+        .neq("status", "cancelled")
+        .order("date", { ascending: true })
+        .order("start_time", { ascending: true });
 
-            academic_years (
-                name
-            ),
-
-            classes (
-                name,
-                level
-            ),
-
-            subjects (
-                name,
-                short_name
-            )
-
-            `
-        )
-        .eq(
-            "teacher_id",
-            user.id
-        )
-        .neq(
-            "status",
-            "cancelled"
-        )
-        .order(
-            "date",
-            {
-                ascending:true
-            }
-        )
-        .order(
-            "start_time",
-            {
-                ascending:true
-            }
-        );
-
-
-
-    if(error){
-
-        console.error(
-            "Gagal mengambil jadwal:",
-            error
-        );
-
+    if (error) {
+        console.error("[Dashboard] Gagal mengambil jadwal:", error);
         throw error;
-
     }
-
-
-
     return data || [];
-
-
 }
 
-
-
-
-
-// ==========================================
-// LOAD DASHBOARD
-// ==========================================
-
-async function loadDashboard(){
-
-
-    console.log(
-        "LOAD DASHBOARD DIMULAI"
-    );
-
-
-
-    try{
-
-
-        const schedules =
-            await getDashboardSchedules();
-
-
-
-        console.log(
-            "DASHBOARD SCHEDULES:",
-            schedules
-        );
-
-
-
-        console.log(
-            "JUMLAH JADWAL:",
-            schedules.length
-        );
-
-
-
-
-
-        // =================================
-        // SUMMARY
-        // =================================
-
-
-        const total =
-            schedules.length;
-
-
-
-        const now =
-            new Date();
-
-
-
-        const month =
-            now.getMonth();
-
-
-
-        const year =
-            now.getFullYear();
-
-
-
-
-        const monthly =
-            schedules.filter(
-                item => {
-
-
-                    if(
-                        !item.date
-                    ){
-
-                        return false;
-
-                    }
-
-
-
-                    const date =
-                        new Date(
-                            item.date
-                            +
-                            "T00:00:00"
-                        );
-
-
-
-                    return (
-
-                        date.getMonth()
-                        ===
-                        month
-
-                        &&
-
-                        date.getFullYear()
-                        ===
-                        year
-
-                    );
-
-
-                }
-            )
-            .length;
-
-
-
-
-
-        const written =
-            schedules.filter(
-                item =>
-
-                item.assessment_type
-                ===
-                "written"
-
-            )
-            .length;
-
-
-
-
-
-        const practical =
-            schedules.filter(
-                item =>
-
-                item.assessment_type
-                ===
-                "practical"
-
-            )
-            .length;
-
-
-
-
-
-        console.log(
-            "SUMMARY:",
-            {
-
-                total,
-
-                monthly,
-
-                written,
-
-                practical
-
-            }
-        );
-
-
-
-
-
-        // =================================
-        // UPDATE CARD
-        // =================================
-
-
-        setDashboardValue(
-            "totalSchedule",
-            total
-        );
-
-
-        setDashboardValue(
-            "monthlySchedule",
-            monthly
-        );
-
-
-        setDashboardValue(
-            "writtenSchedule",
-            written
-        );
-
-
-        setDashboardValue(
-            "practicalSchedule",
-            practical
-        );
-
-
-
-
-
-
-        // =================================
-        // OPTIONAL LIST
-        // =================================
-
-        renderLatestSchedules(
-            schedules
-        );
-
-
-
-        console.log(
-            "DASHBOARD BERHASIL DIMUAT"
-        );
-
-
-
-    }
-    catch(error){
-
-
-        console.error(
-            "GAGAL MEMUAT DASHBOARD:",
-            error
-        );
-
-
-    }
-
-
-}
-
-
-
-
-
-
-
-// ==========================================
-// SET CARD VALUE
-// ==========================================
-
-function setDashboardValue(
-    id,
-    value
-){
-
-
-    const element =
-        document.getElementById(
-            id
-        );
-
-
-
-    if(element){
-
-        element.textContent =
-            value;
-
-    }
-
-
-}
-
-
-
-
-
-
-// ==========================================
-// OPTIONAL LIST JADWAL TERBARU
-// ==========================================
-
-function renderLatestSchedules(
-    schedules
-){
-
-
-    const container =
-        document.getElementById(
-            "latestScheduleContainer"
-        );
-
-
-
-    /*
-       Jika HTML belum mempunyai
-       container daftar jadwal,
-       abaikan.
-    */
-
-
-    if(!container){
-
-        console.log(
-            "latestScheduleContainer belum tersedia."
-        );
-
-        return;
-
-    }
-
-
-
-
-    if(
-        schedules.length === 0
-    ){
-
-        container.innerHTML =
-        `
-        <p>
-            Belum ada jadwal sumatif.
-        </p>
-        `;
-
-
-        return;
-
-    }
-
-
-
-
-
-    const latest =
-        schedules.slice(
-            0,
-            5
-        );
-
-
-
-
-    container.innerHTML =
-        latest.map(
-            item =>
-
-
-            `
-
-            <div class="schedule-item">
-
-                <strong>
-
-                    ${escapeHtml(
-                        item.subjects?.name
-                        ||
-                        "-"
-                    )}
-
-                </strong>
-
-
-                <p>
-
-                    Sumatif
-                    ${item.sumatif_number}
-
-                    -
-
-                    ${formatAssessmentType(
-                        item.assessment_type
-                    )}
-
-                </p>
-
-
-                <small>
-
-                    ${formatDate(
-                        item.date
-                    )}
-
-                </small>
-
-
-            </div>
-
-            `
-
-        )
-        .join("");
-
-
-
-}
-
-
-
-
-
-// ==========================================
-// FORMAT
-// ==========================================
-
-function formatAssessmentType(
-    type
-){
-
-
-    if(
-        type === "written"
-    ){
-
-        return "Tes Tertulis";
-
-    }
-
-
-
-    if(
-        type === "practical"
-    ){
-
-        return "Tes Praktik";
-
-    }
-
-
-
-    return type || "-";
-
-
-}
-
-
-
-
-
-
-function formatDate(
-    date
-){
-
-
-    if(!date){
-
-        return "-";
-
-    }
-
-
-
-    return new Date(
-        date + "T00:00:00"
-    )
-    .toLocaleDateString(
-        "id-ID",
-        {
-
-            day:"2-digit",
-
-            month:"short",
-
-            year:"numeric"
-
+async function loadDashboard() {
+    const list = document.getElementById("latestScheduleList");
+    if (list) list.innerHTML = '<div class="latest-loading">Memuat jadwal...</div>';
+
+    try {
+        const schedules = await getDashboardSchedules();
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const monthName = now.toLocaleDateString("id-ID", { month: "long", year: "numeric" });
+
+        setDashboardValue("dashboardToday", now.toLocaleDateString("id-ID", {
+            weekday: "long", day: "numeric", month: "short", year: "numeric"
+        }));
+        setDashboardValue("dashboardMonthLabel", monthName);
+        setDashboardValue("totalSchedule", schedules.length);
+
+        const monthly = schedules.filter(item => {
+            if (!item.date) return false;
+            const d = parseDashboardDate(item.date);
+            return d && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        }).length;
+
+        const written = schedules.filter(item => item.assessment_type === "written").length;
+        const practical = schedules.filter(item => item.assessment_type === "practical").length;
+
+        setDashboardValue("monthlySchedule", monthly);
+        setDashboardValue("writtenSchedule", written);
+        setDashboardValue("practicalSchedule", practical);
+        setDashboardValue("assessmentChartTotal", schedules.length);
+        setDashboardValue("writtenCount", written);
+        setDashboardValue("practicalCount", practical);
+        setDashboardValue("writtenPercent", percentOf(written, schedules.length) + "% dari jadwal");
+        setDashboardValue("practicalPercent", percentOf(practical, schedules.length) + "% dari jadwal");
+
+        const writtenPercent = schedules.length ? (written / schedules.length) * 100 : 0;
+        const practicalPercent = schedules.length ? (practical / schedules.length) * 100 : 0;
+        const chart = document.getElementById("assessmentChart");
+        if (chart) {
+            chart.style.background = schedules.length
+                ? `conic-gradient(#4f46e5 0% ${writtenPercent}%, #f59e0b ${writtenPercent}% 100%)`
+                : "conic-gradient(#e8edf7 0% 100%)";
+            chart.setAttribute("aria-label", `Jadwal tertulis ${written}, jadwal praktik ${practical}`);
         }
-    );
 
+        setDashboardValue("distributionNote",
+            schedules.length
+                ? "Ringkasan berdasarkan " + schedules.length + " jadwal aktif."
+                : "Belum ada jadwal aktif untuk ditampilkan."
+        );
 
+        renderLatestSchedules(schedules, today);
+        console.log("[Dashboard] Berhasil dimuat:", schedules.length, "jadwal");
+    } catch (error) {
+        console.error("[Dashboard] Gagal memuat:", error);
+        if (list) list.innerHTML = '<div class="latest-empty">Data dashboard belum dapat dimuat. Periksa koneksi, lalu coba muat ulang.</div>';
+    }
 }
 
-
-
-
-
-function escapeHtml(
-    value
-){
-
-
-    return String(
-        value ?? ""
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
-
-
+function setDashboardValue(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
 }
+
+function parseDashboardDate(value) {
+    if (!value) return null;
+    const parts = String(value).slice(0, 10).split("-").map(Number);
+    if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+function percentOf(value, total) {
+    return total ? Math.round((value / total) * 100) : 0;
+}
+
+function renderLatestSchedules(schedules, today = new Date()) {
+    const container = document.getElementById("latestScheduleList");
+    if (!container) return;
+
+    const upcoming = schedules
+        .filter(item => {
+            const date = parseDashboardDate(item.date);
+            return date && date >= today;
+        })
+        .sort((a, b) => {
+            const dateCompare = String(a.date || "").localeCompare(String(b.date || ""));
+            return dateCompare || String(a.start_time || "").localeCompare(String(b.start_time || ""));
+        })
+        .slice(0, 3);
+
+    if (!upcoming.length) {
+        container.innerHTML = '<div class="latest-empty">Belum ada jadwal sumatif mendatang.</div>';
+        return;
+    }
+
+    container.innerHTML = upcoming.map(item => {
+        const date = parseDashboardDate(item.date);
+        const day = date.toLocaleDateString("id-ID", { day: "2-digit" });
+        const month = date.toLocaleDateString("id-ID", { month: "short" });
+        const subject = item.subjects?.name || "Mata pelajaran";
+        const className = item.classes?.name || "Kelas belum tersedia";
+        const time = item.start_time
+            ? `${String(item.start_time).slice(0,5)}${item.end_time ? "–" + String(item.end_time).slice(0,5) : ""}`
+            : "Waktu belum diatur";
+        const type = item.assessment_type === "practical" ? "Praktik" : item.assessment_type === "written" ? "Tertulis" : "Jenis belum ditentukan";
+        const status = item.status === "scheduled" ? "Terjadwal" : (item.status || "Aktif");
+        return `
+            <article class="latest-schedule-item">
+                <div class="latest-date-box"><strong>${day}</strong><span>${month}</span></div>
+                <div class="latest-subject">
+                    <div class="latest-title-line"><strong>${escapeDashboardHtml(subject)}</strong><span class="latest-number">Sumatif ${escapeDashboardHtml(item.sumatif_number ?? "-")}</span><span class="latest-type-badge ${item.assessment_type === "practical" ? "is-practical" : ""}">${type}</span></div>
+                    <div class="latest-meta"><span>▣ ${escapeDashboardHtml(className)}</span><span>◷ ${escapeDashboardHtml(time)}</span>${item.room ? `<span>⌂ ${escapeDashboardHtml(item.room)}</span>` : ""}</div>
+                    ${item.material ? `<small>${escapeDashboardHtml(item.material)}</small>` : ""}
+                </div>
+                <span class="latest-status">${escapeDashboardHtml(status)}</span>
+            </article>
+        `;
+    }).join("");
+}
+
+function escapeDashboardHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+document.getElementById("dashboardRefreshBtn")?.addEventListener("click", async () => {
+    const button = document.getElementById("dashboardRefreshBtn");
+    if (button) {
+        button.disabled = true;
+        button.classList.add("is-loading");
+    }
+    try {
+        await loadDashboard();
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.classList.remove("is-loading");
+        }
+    }
+});
