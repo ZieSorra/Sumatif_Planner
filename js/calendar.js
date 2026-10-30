@@ -8,6 +8,7 @@ let calendarPlannerState = {
     classes: [],
     subjects: [],
     schedules: [],
+    educationEvents: [],
     yearId: "",
     classId: "",
     semester: 1,
@@ -48,6 +49,10 @@ function calendarPlannerEnsureStyles() {
         .calendar-planner-event{display:block;border-radius:6px;padding:5px 6px;margin-bottom:4px;background:#eff8ff;border-left:3px solid #175cd3;font-size:10px;line-height:1.35;overflow:hidden}
         .calendar-planner-event.practical{background:#ecfdf3;border-left-color:#039855}
         .calendar-planner-event strong{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .calendar-planner-event.academic-holiday{background:#fff1f2;border-left-color:#e11d48}
+        .calendar-planner-event.academic-effective{background:#ecfdf3;border-left-color:#059669}
+        .calendar-planner-event.academic-school{background:#fff7e6;border-left-color:#d97706}
+        .calendar-planner-legend{display:flex;gap:12px;flex-wrap:wrap;padding:10px 14px;background:#f8faff;border-top:1px solid #eaecf0;font-size:11px;color:#667085}
         .calendar-planner-event span{display:block;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .calendar-planner-empty{text-align:center;padding:45px 20px;color:#667085}
         .calendar-planner-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
@@ -71,7 +76,7 @@ function calendarPlannerEnsureWorkspace() {
         <div class="calendar-planner-header">
             <div>
                 <h2>Kalender Sumatif</h2>
-                <p>Resume jadwal sumatif berdasarkan tahun pelajaran, kelas, dan semester.</p>
+                <p>Kalender pendidikan sekolah dan jadwal sumatif berdasarkan tahun pelajaran, kelas, dan semester.</p>
             </div>
             <div class="calendar-planner-actions">
                 <button type="button" class="secondary-button" id="calendarPlannerToday">Hari Ini</button>
@@ -90,10 +95,12 @@ function calendarPlannerEnsureWorkspace() {
             </div>
             <div id="calendarPlannerGrid"></div>
         </div>
+        <div class="calendar-planner-legend"><span>🟢 Hari efektif / KBM</span><span>🔴 Libur / tidak tersedia</span><span>🟠 Kegiatan sekolah</span><span>🔵 Jadwal sumatif</span></div>
         <div class="calendar-planner-summary">
             <div class="calendar-planner-stat"><span>Total Jadwal</span><strong id="calendarPlannerTotal">0</strong></div>
             <div class="calendar-planner-stat"><span>Tes Tertulis</span><strong id="calendarPlannerWritten">0</strong></div>
             <div class="calendar-planner-stat"><span>Tes Praktik</span><strong id="calendarPlannerPractical">0</strong></div>
+            <div class="calendar-planner-stat"><span>Agenda Pendidikan</span><strong id="calendarPlannerAcademicTotal">0</strong></div>
         </div>
     `;
     main.appendChild(workspace);
@@ -149,7 +156,16 @@ async function calendarPlannerLoadContext() {
 }
 
 async function calendarPlannerLoadSchedules() {
-    if (!calendarPlannerState.yearId || !calendarPlannerState.classId) {
+    if (!calendarPlannerState.yearId) {
+        calendarPlannerState.schedules = [];
+        calendarPlannerState.educationEvents = [];
+        renderCalendarPlanner();
+        return;
+    }
+    const academicResult = await supabaseClient.from("education_calendar").select("id,academic_year_id,semester,date,day_type,title,description,is_selectable").eq("academic_year_id", calendarPlannerState.yearId).eq("semester", Number(calendarPlannerState.semester)).order("date", { ascending: true });
+    if (academicResult.error) throw academicResult.error;
+    calendarPlannerState.educationEvents = academicResult.data || [];
+    if (!calendarPlannerState.classId) {
         calendarPlannerState.schedules = [];
         renderCalendarPlanner();
         return;
@@ -260,9 +276,11 @@ function renderCalendarPlanner() {
     weekdays.forEach(day => cells.push(`<div class="calendar-planner-weekday">${day}</div>`));
 
     const schedules = calendarPlannerState.schedules || [];
+    const educationEvents = calendarPlannerState.educationEvents || [];
     const today = new Date();
     const makeDateKey = (y,m,d) => `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
     const eventsFor = key => schedules.filter(item => String(item.date).slice(0,10) === key);
+    const academicEventsFor = key => educationEvents.filter(item => String(item.date).slice(0,10) === key);
 
     for (let i = 0; i < start; i++) {
         const day = prevDays - start + i + 1;
@@ -272,7 +290,12 @@ function renderCalendarPlanner() {
         const key = makeDateKey(calendarPlannerState.year, calendarPlannerState.month, day);
         const isToday = today.getFullYear() === calendarPlannerState.year && today.getMonth() === calendarPlannerState.month && today.getDate() === day;
         const events = eventsFor(key);
-        cells.push(`<div class="calendar-planner-day${isToday ? " today" : ""}"><div class="calendar-planner-day-number">${day}</div>${events.map(item => {
+        const academicEvents = academicEventsFor(key);
+        cells.push(`<div class="calendar-planner-day${isToday ? " today" : ""}"><div class="calendar-planner-day-number">${day}</div>${academicEvents.map(item => {
+            const type = String(item.day_type || "").toLowerCase();
+            const kind = /libur|tidak tersedia|cuti/i.test(type) ? "academic-holiday" : /efektif|kbm/i.test(type) ? "academic-effective" : "academic-school";
+            return `<div class="calendar-planner-event ${kind}" title="${calendarPlannerEscape(item.description || item.title || item.day_type)}"><strong>${calendarPlannerEscape(item.title || item.day_type || "Agenda Pendidikan")}</strong><span>${calendarPlannerEscape(item.day_type || "Agenda sekolah")}</span></div>`;
+        }).join("")}${events.map(item => {
             const practical = item.assessment_type === "practical";
             const time = item.start_time && item.end_time ? `${String(item.start_time).slice(0,5)}–${String(item.end_time).slice(0,5)}` : "";
             return `<div class="calendar-planner-event ${practical ? "practical" : ""}" title="${calendarPlannerEscape(`${calendarPlannerSubjectName(item.subject_id)} · Sumatif ${item.sumatif_number}`)}"><strong>${calendarPlannerEscape(calendarPlannerSubjectName(item.subject_id))}</strong><span>S${item.sumatif_number} · ${calendarPlannerEscape(time)}</span></div>`;
@@ -284,6 +307,7 @@ function renderCalendarPlanner() {
     document.getElementById("calendarPlannerTotal").textContent = schedules.length;
     document.getElementById("calendarPlannerWritten").textContent = schedules.filter(item => item.assessment_type === "written").length;
     document.getElementById("calendarPlannerPractical").textContent = schedules.filter(item => item.assessment_type === "practical").length;
+    document.getElementById("calendarPlannerAcademicTotal").textContent = educationEvents.length;
 }
 
 async function openCalendarPlanner() {
