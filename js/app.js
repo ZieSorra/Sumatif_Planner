@@ -174,6 +174,20 @@ if (loginForm) {
 
 
 // ==========================================
+// Password visibility toggle on the login form.
+const togglePasswordBtn = document.getElementById("togglePassword");
+if (togglePasswordBtn) {
+    togglePasswordBtn.addEventListener("click", () => {
+        const passwordInput = document.getElementById("password");
+        if (!passwordInput) return;
+        const showPassword = passwordInput.type === "password";
+        passwordInput.type = showPassword ? "text" : "password";
+        togglePasswordBtn.setAttribute("aria-pressed", String(showPassword));
+        togglePasswordBtn.setAttribute("aria-label", showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi");
+        togglePasswordBtn.textContent = showPassword ? "◎" : "◉";
+    });
+}
+
 // LOGOUT
 // ==========================================
 
