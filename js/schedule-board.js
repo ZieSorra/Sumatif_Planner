@@ -18,10 +18,24 @@ function renderScheduleList() {
 
     if (!section || !list) return;
 
-    if (!scheduleContext.academicYearId || !scheduleContext.classId || !scheduleContext.semester) {
+    // State valid hanya jika filter yang terlihat juga telah dipilih.
+    const yearFilter = document.getElementById("scheduleYearFilter");
+    const classFilter = document.getElementById("scheduleClassFilter");
+    const semesterFilter = document.getElementById("scheduleSemesterFilter");
+    const filtersSelected = Boolean(
+        yearFilter?.value && classFilter?.value && semesterFilter?.value
+    );
+
+    if (
+        !filtersSelected ||
+        !scheduleContext.academicYearId ||
+        !scheduleContext.classId ||
+        !scheduleContext.semester
+    ) {
         section.classList.add("hidden");
         calendarSection?.classList.add("hidden");
         empty?.classList.remove("hidden");
+        list.innerHTML = "";
         return;
     }
 
