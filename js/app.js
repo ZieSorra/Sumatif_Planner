@@ -319,11 +319,39 @@ function showWorkspace(menu) {
     if (menu === "dashboard") {
         dashboardSections.forEach(section => section.classList.remove("hidden"));
         if (scheduleWorkspace) scheduleWorkspace.classList.add("hidden");
+
+        // Refresh dashboard setiap kali guru kembali ke halaman utama.
+        if (typeof loadDashboard === "function") {
+            loadDashboard();
+        }
     }
 
     if (menu === "schedule") {
         dashboardSections.forEach(section => section.classList.add("hidden"));
         if (scheduleWorkspace) scheduleWorkspace.classList.remove("hidden");
+
+        // Saat masuk kembali, filter harus kosong dan subject board disembunyikan.
+        const yearFilter = document.getElementById("scheduleYearFilter");
+        const classFilter = document.getElementById("scheduleClassFilter");
+        const semesterFilter = document.getElementById("scheduleSemesterFilter");
+        if (yearFilter) yearFilter.value = "";
+        if (classFilter) classFilter.value = "";
+        if (semesterFilter) semesterFilter.value = "";
+
+        if (typeof scheduleContext !== "undefined") {
+            scheduleContext = {
+                academicYearId: "",
+                classId: "",
+                semester: "",
+                academicYearName: "",
+                className: ""
+            };
+        }
+        if (typeof scheduleSchedules !== "undefined") scheduleSchedules = [];
+        if (typeof scheduleCalendarDays !== "undefined") scheduleCalendarDays = [];
+
+        if (typeof hideEducationCalendar === "function") hideEducationCalendar();
+        if (typeof renderScheduleList === "function") renderScheduleList();
     }
 
     document.querySelectorAll(".sidebar-menu").forEach(button => {
@@ -351,7 +379,7 @@ document.addEventListener("click", event => {
 
 (function loadScheduleBoardUI() {
     const script = document.createElement("script");
-    script.src = "js/schedule-board.js?v=2";
+    script.src = "js/schedule-board.js?v=3";
 
     script.onload = function () {
         console.log("[Schedule Board] UI subject-card berhasil dimuat.");
