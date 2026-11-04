@@ -57,6 +57,9 @@
     }
 
     function printReport() {
+        if (window.currentProfile?.role !== "admin") {
+            return Promise.reject(new Error("Cetak rekap jadwal kelas hanya dapat dilakukan oleh Admin."));
+        }
         installStyles();
         document.getElementById("reportPrintDocument")?.remove();
         const doc = buildDocument();
