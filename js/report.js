@@ -129,6 +129,11 @@
         document.getElementById("reportPrint")?.addEventListener("click", event => {
             event.preventDefault();
             event.stopPropagation();
+            if (!isAdmin()) {
+                if (typeof showAppDialog === "function") showAppDialog("Cetak rekap jadwal kelas hanya dapat dilakukan oleh Admin.", "warning", "Akses Ditolak");
+                syncPrintPermission();
+                return;
+            }
             if (typeof window.printSumatifReport === "function") {
                 window.printSumatifReport().catch(error => {
                     console.error("[Report] Gagal mencetak:", error);
@@ -144,6 +149,7 @@
     async function openReport() {
         const workspace = ensureWorkspace();
         if (!workspace) return;
+        syncPrintPermission();
         document.querySelectorAll(".dashboard-home").forEach(x => x.classList.add("hidden"));
         document.getElementById("scheduleWorkspace")?.classList.add("hidden");
         document.getElementById("calendarPlannerWorkspace")?.classList.add("hidden");
