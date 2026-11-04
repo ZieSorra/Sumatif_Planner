@@ -2783,3 +2783,29 @@ body {
 @media(max-width:850px){.dashboard-welcome{align-items:flex-start;flex-direction:column}.dashboard-today{width:min(100%,260px)}.dashboard-grid{grid-template-columns:1fr}.dashboard-side-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.dashboard-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-welcome{padding:18px}.dashboard-panel{padding:14px}.dashboard-side-column{grid-template-columns:1fr}.distribution-content{grid-template-columns:1fr}.distribution-chart-wrap{min-height:145px}.latest-schedule-item{grid-template-columns:40px minmax(0,1fr)}.latest-status{grid-column:2;justify-self:start}}
 @media(max-width:420px){.summary-number strong{font-size:25px}.summary-icon{width:27px;height:27px}.summary-card p{font-size:8px}.dashboard-panel-heading{gap:7px}.dashboard-link{font-size:8px}}
+
+/* =========================================
+   ZIESORRA BRAND SIGNATURE
+========================================= */
+.sidebar-powered {
+    margin-top: 9px;
+    text-align: center;
+    color: #98a2b3;
+    font-size: 10px;
+    letter-spacing: .15px;
+}
+.sidebar-powered strong {
+    color: #475467;
+    font-weight: 700;
+}
+.login-powered {
+    margin: 7px 0 0;
+    text-align: center;
+    color: #98a2b3;
+    font-size: 10px;
+    letter-spacing: .2px;
+}
+.login-powered strong {
+    color: #475467;
+    font-weight: 700;
+}
