@@ -2809,3 +2809,23 @@ body {
     color: #475467;
     font-weight: 700;
 }
+
+/* Sumatif Planner custom logo */
+.app-brand-logo {
+    display: block;
+    width: 108px;
+    height: 45px;
+    object-fit: contain;
+    flex: 0 0 auto;
+}
+.login-logo-image {
+    display: block;
+    width: min(220px, 75%);
+    height: auto;
+    object-fit: contain;
+    margin: 0 auto 12px;
+}
+@media (max-width: 600px) {
+    .app-brand-logo { width: 84px; height: 36px; }
+    .login-logo-image { width: min(190px, 75%); }
+}
