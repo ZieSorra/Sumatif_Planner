@@ -12,6 +12,14 @@
     const subjectName = id => (typeof scheduleSubjects !== "undefined" ? scheduleSubjects : []).find(x => String(x.id) === String(id))?.name || "Mata Pelajaran";
     const fmtDate = value => new Intl.DateTimeFormat("id-ID", {day:"2-digit", month:"short", year:"numeric"}).format(new Date(String(value).slice(0,10) + "T00:00:00"));
     const fmtTime = value => value ? String(value).slice(0,5) : "-";
+    const isAdmin = () => window.currentProfile?.role === "admin";
+    function syncPrintPermission() {
+        const printButton = document.getElementById("reportPrint");
+        if (printButton) {
+            printButton.hidden = !isAdmin();
+            printButton.title = isAdmin() ? "Cetak rekap jadwal kelas" : "Fitur cetak rekap kelas hanya untuk Admin";
+        }
+    }
 
     function injectMenu() {
         if (document.querySelector('[data-menu="report"]')) return;
